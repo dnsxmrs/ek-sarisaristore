@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Search, Plus, Edit2, Power, Layers, Barcode, AlertCircle } from "lucide-react";
+import { Search, Plus, Edit2, Power, Layers, Barcode, AlertCircle, RefreshCw } from "lucide-react";
 import { formatPeso } from "@/lib/money";
 import { toggleProductStatus, searchProducts } from "@/server/actions/products";
 
@@ -24,34 +24,96 @@ interface ProductItem {
 
 interface ProductListViewProps {
   initialProducts: ProductItem[];
+  initialTotalCount?: number;
+  initialHasMore?: boolean;
   categories: Category[];
 }
 
 export function ProductListView({
   initialProducts,
+  initialTotalCount,
+  initialHasMore,
   categories,
 }: ProductListViewProps) {
   const [products, setProducts] = useState<ProductItem[]>(initialProducts);
+  const [totalCount, setTotalCount] = useState<number>(initialTotalCount ?? initialProducts.length);
+  const [hasMore, setHasMore] = useState<boolean>(initialHasMore ?? false);
+  const [isLoadingMore, setIsLoadingMore] = useState<boolean>(false);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [showInactive, setShowInactive] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Trigger search
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  // Trigger search from offset 0
   const handleSearch = (queryText: string, catId: string, inactive: boolean) => {
     startTransition(async () => {
       const res = await searchProducts({
         query: queryText,
         categoryId: catId === "ALL" ? undefined : catId,
         isActive: inactive ? undefined : true,
+        limit: 12,
+        offset: 0,
       });
 
       if (res.success && res.products) {
         setProducts(res.products as ProductItem[]);
+        setHasMore(res.hasMore ?? false);
+        if (typeof res.totalCount === "number") {
+          setTotalCount(res.totalCount);
+        }
       }
     });
   };
+
+  // Progressive streaming fetch when user scrolls down (Facebook / infinite scroll style)
+  const loadMore = useCallback(async () => {
+    if (isLoadingMore || !hasMore) return;
+    setIsLoadingMore(true);
+
+    try {
+      const res = await searchProducts({
+        query: searchQuery,
+        categoryId: selectedCategory === "ALL" ? undefined : selectedCategory,
+        isActive: showInactive ? undefined : true,
+        limit: 12,
+        offset: products.length,
+      });
+
+      if (res.success && res.products) {
+        setProducts((prev) => [...prev, ...(res.products as ProductItem[])]);
+        setHasMore(res.hasMore ?? false);
+        if (typeof res.totalCount === "number") {
+          setTotalCount(res.totalCount);
+        }
+      }
+    } catch (err) {
+      console.error("Error streaming more products:", err);
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [isLoadingMore, hasMore, searchQuery, selectedCategory, showInactive, products.length]);
+
+  // IntersectionObserver to detect when user reaches within 250px of the bottom
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !isLoadingMore && !isPending) {
+          loadMore();
+        }
+      },
+      { rootMargin: "250px" }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadMore, hasMore, isLoadingMore, isPending]);
 
   const onQueryChange = (val: string) => {
     setSearchQuery(val);
@@ -114,7 +176,9 @@ export function ProductListView({
             Tindahan (Catalog)
           </h1>
           <p className="text-xs text-slate-500">
-            {products.length} {products.length === 1 ? "produkto" : "mga produkto"}
+            {products.length < totalCount
+              ? `Ipinapakita: ${products.length} sa ${totalCount} produkto`
+              : `${totalCount} ${totalCount === 1 ? "produkto" : "mga produkto"}`}
           </p>
         </div>
         <Link
@@ -157,7 +221,7 @@ export function ProductListView({
               : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
           }`}
         >
-          Lahat ({products.length})
+          Lahat
         </button>
         {categories.map((cat) => (
           <button
@@ -195,7 +259,7 @@ export function ProductListView({
 
       {/* Product List */}
       <div className="space-y-2.5">
-        {products.length === 0 ? (
+        {products.length === 0 && !isPending ? (
           <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
             <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
               <Layers className="w-6 h-6" />
@@ -286,6 +350,33 @@ export function ProductListView({
               </div>
             </div>
           ))
+        )}
+
+        {/* Infinite Scroll Sentinel & Stream Loader (Facebook-style) */}
+        {hasMore && (
+          <div ref={sentinelRef} className="py-4 flex flex-col items-center justify-center">
+            {isLoadingMore ? (
+              <div className="w-full flex flex-col items-center gap-2">
+                {/* Skeleton placeholders */}
+                <div className="w-full bg-slate-200/60 rounded-xl h-20 animate-pulse border border-slate-300/40" />
+                <div className="flex items-center gap-2 text-xs text-teal-800 font-medium py-1">
+                  <RefreshCw className="w-4 h-4 animate-spin text-teal-600" />
+                  <span>Kinakarga ang susunod na mga produkto...</span>
+                </div>
+              </div>
+            ) : (
+              <div className="h-6" />
+            )}
+          </div>
+        )}
+
+        {/* End of Catalog Banner */}
+        {!hasMore && products.length > 0 && (
+          <div className="text-center py-4 text-xs text-slate-400 border-t border-slate-200/80 mt-4">
+            <span className="inline-block bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[11px] font-medium border border-slate-200">
+              ✓ Nakarating ka na sa dulo ng katalogo ({products.length} produkto)
+            </span>
+          </div>
         )}
       </div>
     </div>

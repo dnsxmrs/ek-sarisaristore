@@ -76,9 +76,11 @@ export async function searchProducts(params?: {
   query?: string;
   categoryId?: string;
   isActive?: boolean;
+  limit?: number;
+  offset?: number;
 }) {
   try {
-    const { query, categoryId, isActive } = params || {};
+    const { query, categoryId, isActive, limit = 12, offset = 0 } = params || {};
     const trimmedQuery = query?.trim();
 
     const where: Prisma.ProductWhereInput = {};
@@ -107,24 +109,33 @@ export async function searchProducts(params?: {
       ];
     }
 
-    const products = await prisma.product.findMany({
-      where,
-      include: {
-        category: true,
-      },
-      orderBy: [
-        { isActive: "desc" },
-        { name: "asc" },
-      ],
-      take: 50,
-    });
+    const [products, totalCount] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        include: {
+          category: true,
+        },
+        orderBy: [
+          { isActive: "desc" },
+          { name: "asc" },
+        ],
+        skip: offset,
+        take: limit,
+      }),
+      prisma.product.count({ where }),
+    ]);
+
+    const mappedProducts = products.map((p) => ({
+      ...p,
+      sellingPrice: Number(p.sellingPrice),
+    }));
 
     return {
       success: true,
-      products: products.map((p) => ({
-        ...p,
-        sellingPrice: Number(p.sellingPrice),
-      })),
+      products: mappedProducts,
+      totalCount,
+      hasMore: offset + mappedProducts.length < totalCount,
+      nextOffset: offset + mappedProducts.length,
     };
   } catch (err) {
     console.error("Error searching products:", err);
@@ -132,6 +143,9 @@ export async function searchProducts(params?: {
       success: false,
       error: "Hindi makuha ang listahan ng mga produkto. Subukan muli.",
       products: [],
+      totalCount: 0,
+      hasMore: false,
+      nextOffset: 0,
     };
   }
 }

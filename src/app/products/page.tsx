@@ -1,18 +1,26 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { getCategories, searchProducts } from "@/server/actions/products";
 import { ProductListView } from "@/components/products/ProductListView";
 import { Header } from "@/components/navigation/Header";
 import { BottomNav } from "@/components/navigation/BottomNav";
 
+export const metadata: Metadata = {
+  title: "Tindahan & Katalogo | Sari-Sari Store POS",
+  description: "Listahan at imbentaryo ng mga paninda sa sari-sari store.",
+};
+
 async function ProductsListContent() {
   const [categories, productsRes] = await Promise.all([
     getCategories(),
-    searchProducts({ isActive: true }),
+    searchProducts({ isActive: true, limit: 12, offset: 0 }),
   ]);
 
   return (
     <ProductListView
       initialProducts={productsRes.products || []}
+      initialTotalCount={productsRes.totalCount ?? 0}
+      initialHasMore={productsRes.hasMore ?? false}
       categories={categories}
     />
   );
