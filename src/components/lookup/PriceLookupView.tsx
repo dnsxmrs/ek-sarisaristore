@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useEffect } from "react";
+import { useState, useTransition, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Camera, Search, PlusCircle, AlertCircle, Edit3, RefreshCw, Barcode, CheckCircle2, ArrowRight } from "lucide-react";
 import { formatPeso } from "@/lib/money";
@@ -30,14 +30,11 @@ export function PriceLookupView() {
   const [hasSearched, setHasSearched] = useState(false);
 
   // Handle barcode lookup
-  const handleBarcodeLookup = (code: string) => {
+  const handleBarcodeLookup = useCallback((code: string) => {
     const trimmed = code.trim();
     if (!trimmed) return;
 
     setSearchTerm(trimmed);
-    setFoundProduct(null);
-    setNotFoundBarcode(null);
-    setNameSearchResults([]);
     setHasSearched(true);
 
     startTransition(async () => {
@@ -45,19 +42,27 @@ export function PriceLookupView() {
 
       if (res.success && res.product) {
         setFoundProduct(res.product as ProductData);
+        setNotFoundBarcode(null);
+        setNameSearchResults([]);
       } else if (res.notFound) {
         setNotFoundBarcode(res.barcode || trimmed);
+        setFoundProduct(null);
+        setNameSearchResults([]);
       } else {
         // If exact barcode didn't match, attempt name search as fallback
-        const nameRes = await searchProducts({ query: trimmed, isActive: true });
+        const nameRes = await searchProducts({ query: trimmed, isActive: true, limit: 10 });
         if (nameRes.success && nameRes.products.length > 0) {
           setNameSearchResults(nameRes.products as ProductData[]);
+          setFoundProduct(null);
+          setNotFoundBarcode(null);
         } else {
           setNotFoundBarcode(trimmed);
+          setFoundProduct(null);
+          setNameSearchResults([]);
         }
       }
     });
-  };
+  }, []);
 
   // Global Hardware Barcode Scanner Listener (USB / Bluetooth Scanner Gun)
   useEffect(() => {
@@ -96,7 +101,7 @@ export function PriceLookupView() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [handleBarcodeLookup]);
 
   // Form submit for typing barcode or name
   const handleSubmit = (e: React.FormEvent) => {
@@ -152,9 +157,7 @@ export function PriceLookupView() {
         <InlineCameraScanner
           isCameraOn={isCameraOn}
           onToggleCamera={setIsCameraOn}
-          onScan={(scannedCode) => {
-            handleBarcodeLookup(scannedCode);
-          }}
+          onScan={handleBarcodeLookup}
           lastScannedCode={searchTerm || null}
         />
       </div>
@@ -191,16 +194,8 @@ export function PriceLookupView() {
         </form>
       </div>
 
-      {/* Loading state indicator */}
-      {isPending && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm mb-4">
-          <RefreshCw className="w-8 h-8 text-teal-600 animate-spin mx-auto mb-2" />
-          <p className="text-sm font-medium text-slate-700">Hinahanap ang presyo ng produkto...</p>
-        </div>
-      )}
-
       {/* Result: EXACT PRODUCT FOUND */}
-      {foundProduct && !isPending && (
+      {foundProduct && (
         <div className="bg-white rounded-2xl border-2 border-teal-600/30 shadow-md overflow-hidden mb-4 animate-fade-in">
           {/* Card Header */}
           <div className="bg-teal-900 text-white px-4 py-2.5 flex items-center justify-between">
@@ -277,7 +272,7 @@ export function PriceLookupView() {
       )}
 
       {/* Result: UNKNOWN BARCODE -> QUICK REGISTRATION FLOW */}
-      {notFoundBarcode && !isPending && (
+      {notFoundBarcode && (
         <div className="bg-white rounded-2xl border-2 border-amber-300 shadow-md p-5 text-center mb-4 animate-fade-in">
           <div className="w-12 h-12 rounded-full bg-amber-100 text-amber-700 mx-auto flex items-center justify-center mb-3">
             <AlertCircle className="w-7 h-7" />
@@ -309,7 +304,7 @@ export function PriceLookupView() {
       )}
 
       {/* Result: MULTIPLE NAME MATCHES */}
-      {nameSearchResults.length > 0 && !isPending && (
+      {nameSearchResults.length > 0 && (
         <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm mb-4">
           <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
             <span className="text-xs font-semibold text-slate-700">
@@ -352,8 +347,7 @@ export function PriceLookupView() {
       {hasSearched &&
         !foundProduct &&
         !notFoundBarcode &&
-        nameSearchResults.length === 0 &&
-        !isPending && (
+        nameSearchResults.length === 0 && (
           <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-sm mb-4">
             <AlertCircle className="w-10 h-10 text-slate-400 mx-auto mb-2" />
             <h3 className="font-heading font-semibold text-slate-800 text-sm mb-1">

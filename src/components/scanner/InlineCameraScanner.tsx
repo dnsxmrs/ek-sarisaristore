@@ -10,8 +10,6 @@ import {
   ShieldAlert,
   AlertCircle,
   Scan,
-  CheckCircle2,
-  Sparkles,
 } from "lucide-react";
 
 interface InlineCameraScannerProps {
@@ -33,7 +31,6 @@ export function InlineCameraScanner({
   const [facingMode, setFacingMode] = useState<"environment" | "user">("environment");
   const [hasMultipleCameras, setHasMultipleCameras] = useState(false);
   const [isProcessingFile, setIsProcessingFile] = useState(false);
-  const [justScannedBadge, setJustScannedBadge] = useState<string | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,6 +42,12 @@ export function InlineCameraScanner({
   } | null>(null);
 
   const lastScannedRef = useRef<{ code: string; time: number }>({ code: "", time: 0 });
+
+  // Keep a stable ref for onScan so re-renders of parent never trigger scanner re-initialization
+  const onScanRef = useRef(onScan);
+  useEffect(() => {
+    onScanRef.current = onScan;
+  }, [onScan]);
 
   // Sound and haptic feedback
   const playScanFeedback = useCallback(() => {
@@ -89,16 +92,17 @@ export function InlineCameraScanner({
       lastScannedRef.current = { code: trimmed, time: now };
       playScanFeedback();
 
-      // Show temporary pop-in badge
-      setJustScannedBadge(trimmed);
-      setTimeout(() => {
-        setJustScannedBadge(null);
-      }, 2500);
-
-      onScan(trimmed);
+      // Trigger the scan callback via stable ref - NO pop up banner, NO re-mount
+      onScanRef.current(trimmed);
     },
-    [onScan, playScanFeedback]
+    [playScanFeedback]
   );
+
+  // Stable scan callback reference for html5-qrcode
+  const scanCallbackRef = useRef(handleSuccessfulScan);
+  useEffect(() => {
+    scanCallbackRef.current = handleSuccessfulScan;
+  }, [handleSuccessfulScan]);
 
   // Native phone camera snap / file upload fallback (Works 100% even over insecure HTTP / local IP)
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,7 +150,7 @@ export function InlineCameraScanner({
     setFacingMode((prev) => (prev === "environment" ? "user" : "environment"));
   };
 
-  // Lifecycle when isCameraOn is toggled
+  // Lifecycle when isCameraOn is toggled or camera direction is switched
   useEffect(() => {
     if (!isCameraOn) {
       return;
@@ -172,10 +176,15 @@ export function InlineCameraScanner({
         return;
       }
 
+      // If scanner is already actively scanning, DO NOT start another one to prevent doubled view
+      if (scannerInstanceRef.current?.isScanning) {
+        return;
+      }
+
       setIsStarting(true);
       setScannerError(null);
 
-      // Clean unmanaged container
+      // Clean unmanaged container ensuring only one video element exists
       if (currentContainer) {
         currentContainer.innerHTML = "";
         const targetDiv = document.createElement("div");
@@ -197,6 +206,17 @@ export function InlineCameraScanner({
           }
         } catch {
           // Camera listing non-fatal
+        }
+
+        // Clean up any stale scanner instance before starting
+        if (scannerInstanceRef.current) {
+          try {
+            if (scannerInstanceRef.current.isScanning) {
+              await scannerInstanceRef.current.stop();
+            }
+            scannerInstanceRef.current.clear();
+          } catch {}
+          scannerInstanceRef.current = null;
         }
 
         const scanner = new Html5Qrcode(scannerElementId, {
@@ -223,7 +243,7 @@ export function InlineCameraScanner({
           },
           (decodedText) => {
             if (isMounted) {
-              handleSuccessfulScan(decodedText);
+              scanCallbackRef.current(decodedText);
             }
           },
           () => {
@@ -262,7 +282,7 @@ export function InlineCameraScanner({
 
     const timer = setTimeout(() => {
       initScanner();
-    }, 150);
+    }, 80);
 
     return () => {
       isMounted = false;
@@ -294,7 +314,7 @@ export function InlineCameraScanner({
         }
       }
     };
-  }, [isCameraOn, facingMode, handleSuccessfulScan]);
+  }, [isCameraOn, facingMode]);
 
   return (
     <div className="w-full bg-white rounded-3xl border border-slate-200/90 shadow-sm overflow-hidden transition-all duration-300">
@@ -396,21 +416,6 @@ export function InlineCameraScanner({
                 <RefreshCw className="w-8 h-8 animate-spin text-teal-400" />
                 <span className="text-xs font-medium">Binubuksan ang camera stream...</span>
                 <span className="text-[11px] text-slate-400">Pakihintay sandali</span>
-              </div>
-            )}
-
-            {/* Live View Reticle & Laser Sweep Animation */}
-            {!isStarting && !scannerError && (
-              <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-6 z-10">
-                {/* Center Target Box */}
-              </div>
-            )}
-
-            {/* Pop-in success banner when code is scanned */}
-            {justScannedBadge && (
-              <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 bg-emerald-600 text-white text-xs font-semibold px-3 py-1.5 rounded-xl shadow-lg flex items-center gap-1.5 border border-emerald-400 animate-bounce">
-                <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-                <span>Na-scan: {justScannedBadge}</span>
               </div>
             )}
 
