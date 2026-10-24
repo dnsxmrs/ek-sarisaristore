@@ -317,27 +317,7 @@ export function InlineCameraScanner({
               <span className="font-heading font-semibold text-sm text-white">
                 Camera Scanner
               </span>
-              {/* Status Pill Indicator */}
-              <span
-                className={`inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-full font-medium border ${
-                  isCameraOn
-                    ? "bg-emerald-950/80 text-emerald-300 border-emerald-600/60"
-                    : "bg-slate-800 text-slate-400 border-slate-700"
-                }`}
-              >
-                <span
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    isCameraOn ? "bg-emerald-400 animate-pulse" : "bg-slate-500"
-                  }`}
-                />
-                {isCameraOn ? "ON (Bukas)" : "OFF (Patay)"}
-              </span>
             </div>
-            <p className="text-[11px] text-slate-400 leading-tight">
-              {isCameraOn
-                ? "Live barcode detector aktibo"
-                : "Naka-off ang camera upang makatipid sa baterya"}
-            </p>
           </div>
         </div>
 
@@ -395,24 +375,6 @@ export function InlineCameraScanner({
             <h3 className="font-heading font-bold text-base text-white mb-1">
               Naka-off ang Camera
             </h3>
-            <p className="text-xs text-slate-400 max-w-xs mb-4 leading-relaxed">
-              Naka-patay ang live camera scanner. I-toggle ang switch o pindutin ang button sa ibaba upang buksan ang camera.
-            </p>
-
-            {/* Quick Turn On Button */}
-            <button
-              type="button"
-              onClick={() => onToggleCamera(true)}
-              className="bg-teal-600 hover:bg-teal-500 active:scale-[0.98] text-white font-semibold text-xs py-2.5 px-4 rounded-xl flex items-center gap-2 shadow-md transition-all min-h-[42px]"
-            >
-              <Camera className="w-4 h-4 text-amber-300" />
-              <span>Buksan ang Camera</span>
-            </button>
-
-            <span className="text-[10px] text-slate-500 mt-3 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-teal-400" />
-              Tipid sa kuryente at baterya habang naka-off
-            </span>
           </div>
         )}
 
@@ -441,21 +403,6 @@ export function InlineCameraScanner({
             {!isStarting && !scannerError && (
               <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center p-6 z-10">
                 {/* Center Target Box */}
-                <div className="relative w-64 h-36 border-2 border-teal-400/50 rounded-2xl shadow-[0_0_20px_rgba(20,184,166,0.2)] flex items-center justify-center">
-                  {/* Corner brackets */}
-                  <span className="absolute -top-1 -left-1 w-4 h-4 border-t-3 border-l-3 border-amber-400 rounded-tl-md" />
-                  <span className="absolute -top-1 -right-1 w-4 h-4 border-t-3 border-r-3 border-amber-400 rounded-tr-md" />
-                  <span className="absolute -bottom-1 -left-1 w-4 h-4 border-b-3 border-l-3 border-amber-400 rounded-bl-md" />
-                  <span className="absolute -bottom-1 -right-1 w-4 h-4 border-b-3 border-r-3 border-amber-400 rounded-br-md" />
-
-                  {/* Horizontal animated laser beam */}
-                  <div className="absolute w-full h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-laser-sweep" />
-
-                  {/* Subtle target hint */}
-                  <span className="text-[10px] uppercase font-mono tracking-wider font-semibold text-teal-200 bg-slate-950/70 px-2 py-0.5 rounded-full border border-teal-500/30">
-                    Itapat ang Barcode Dito
-                  </span>
-                </div>
               </div>
             )}
 
