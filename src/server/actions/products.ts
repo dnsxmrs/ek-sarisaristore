@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { productSchema, type ProductInput } from "@/lib/validation/product";
+import { productSchema } from "@/lib/validation/product";
 import { Prisma } from "@/generated/prisma/client";
 
 export type ActionResult<T = unknown> =

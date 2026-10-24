@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
 
 /**
  * Next.js 16 Proxy (formerly Middleware)
@@ -8,7 +7,7 @@ import type { NextRequest } from "next/server";
  * are accessible on the store's local network without restriction.
  * When auth is activated in the future, session checks and route guards can be added here.
  */
-export function proxy(request: NextRequest) {
+export function proxy() {
   return NextResponse.next();
 }
 

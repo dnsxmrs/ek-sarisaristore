@@ -98,7 +98,7 @@ export function ProductForm({
       } else {
         setSuccessMessage(res.message || "Matagumpay na naisave ang produkto!");
         setTimeout(() => {
-          router.push(mode === "create" ? "/" : "/products");
+          // router.push(mode === "create" ? "/" : "/products");
           router.refresh();
         }, 800);
       }
