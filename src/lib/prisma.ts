@@ -14,7 +14,10 @@ function createPrismaClient() {
 }
 
 // In development with hot-reloading, if schema models changed, refresh stale singleton
-if (globalForPrisma.prisma && !("customer" in globalForPrisma.prisma)) {
+if (
+    globalForPrisma.prisma &&
+    (!("customer" in globalForPrisma.prisma) || !("saleTransaction" in globalForPrisma.prisma))
+) {
     globalForPrisma.prisma = undefined;
 }
 

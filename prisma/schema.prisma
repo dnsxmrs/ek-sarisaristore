@@ -96,9 +96,10 @@ model Product {
   categoryId   String?
   category     Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
   description  String?
-  isActive     Boolean   @default(true)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  saleItems    SaleItem[]
 
   @@index([barcode])
   @@index([name])
@@ -160,3 +161,41 @@ model DebtPayment {
   @@index([debtRecordId])
   @@map("debt_payment")
 }
+
+// ==========================================
+// Sales Recording & Transactions
+// ==========================================
+
+model SaleTransaction {
+  id            String     @id @default(uuid())
+  receiptNumber String     @unique
+  totalAmount   Decimal    @db.Decimal(12, 2)
+  cashReceived  Decimal    @db.Decimal(12, 2)
+  changeAmount  Decimal    @db.Decimal(12, 2)
+  paymentMethod String     @default("CASH") // CASH, GCASH
+  notes         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  items         SaleItem[]
+
+  @@index([createdAt])
+  @@index([receiptNumber])
+  @@map("sale_transaction")
+}
+
+model SaleItem {
+  id                  String          @id @default(uuid())
+  saleId              String
+  sale                SaleTransaction @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId           String?
+  product             Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productNameSnapshot String
+  unitPriceSnapshot   Decimal         @db.Decimal(12, 2)
+  quantity            Int             @default(1)
+  subtotal            Decimal         @db.Decimal(12, 2)
+
+  @@index([saleId])
+  @@index([productId])
+  @@map("sale_item")
+}
+
