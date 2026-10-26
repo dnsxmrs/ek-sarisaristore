@@ -128,16 +128,18 @@ export function NewSaleModal({
     setIsAddingCustom(false);
   };
 
-  // Adjust quantity
+  // Adjust quantity (pure immutable update so React StrictMode does not double-increment)
   const handleUpdateQty = (index: number, delta: number) => {
     setCart((prev) => {
-      const updated = [...prev];
-      const newQty = updated[index].quantity + delta;
+      const target = prev[index];
+      if (!target) return prev;
+      const newQty = target.quantity + delta;
       if (newQty <= 0) {
-        return updated.filter((_, i) => i !== index);
+        return prev.filter((_, i) => i !== index);
       }
-      updated[index].quantity = newQty;
-      return updated;
+      return prev.map((item, i) =>
+        i === index ? { ...item, quantity: newQty } : item
+      );
     });
   };
 
