@@ -8,10 +8,18 @@ const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined;
 };
 
-const adapter = new PrismaPg({ connectionString });
+function createPrismaClient() {
+    const adapter = new PrismaPg({ connectionString });
+    return new PrismaClient({ adapter });
+}
+
+// In development with hot-reloading, if schema models changed, refresh stale singleton
+if (globalForPrisma.prisma && !("customer" in globalForPrisma.prisma)) {
+    globalForPrisma.prisma = undefined;
+}
 
 export const prisma =
-    globalForPrisma.prisma ?? new PrismaClient({ adapter });
+    globalForPrisma.prisma ?? createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
     globalForPrisma.prisma = prisma;
