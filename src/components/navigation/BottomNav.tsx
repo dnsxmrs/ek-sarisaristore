@@ -3,14 +3,14 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ScanLine, PackageSearch, PlusCircle, NotebookPen } from "lucide-react";
+import { ScanLine, PackageSearch, Receipt, NotebookPen } from "lucide-react";
 
 function BottomNavContent() {
   const pathname = usePathname();
 
   const isLookup = pathname === "/";
   const isProducts = pathname === "/products" || (pathname.startsWith("/products/") && !pathname.includes("/new"));
-  const isNew = pathname === "/products/new";
+  const isSales = pathname === "/sales" || pathname.startsWith("/sales");
   const isUtang = pathname === "/utang" || pathname.startsWith("/utang");
 
   return (
@@ -45,17 +45,17 @@ function BottomNavContent() {
         </Link>
 
         <Link
-          href="/products/new"
+          href="/sales"
           className={`flex flex-col items-center justify-center min-h-[44px] transition-colors ${
-            isNew
+            isSales
               ? "text-teal-700 font-semibold"
               : "text-slate-500 hover:text-slate-800 font-medium"
           }`}
         >
-          <div className={`p-1 rounded-full ${isNew ? "bg-teal-50" : ""}`}>
-            <PlusCircle className="w-5 h-5" />
+          <div className={`p-1 rounded-full ${isSales ? "bg-teal-50" : ""}`}>
+            <Receipt className="w-5 h-5" />
           </div>
-          <span className="text-[11px] mt-0.5 font-heading">Magdagdag</span>
+          <span className="text-[11px] mt-0.5 font-heading">Benta</span>
         </Link>
 
         <Link

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
   createSaleSchema,
@@ -42,6 +43,7 @@ function getDayBounds(daysAgo = 0) {
  * Get overall summary stats for Sales (Today's Total, Yesterday, Transaction Count)
  */
 export async function getSalesSummary() {
+  await connection();
   try {
     const { start: todayStart, end: todayEnd } = getDayBounds(0);
     const { start: yestStart, end: yestEnd } = getDayBounds(1);
@@ -89,6 +91,7 @@ export async function getSales(options?: {
   query?: string;
   limit?: number;
 }) {
+  await connection();
   try {
     const dateFilter = options?.dateFilter || "today";
     const query = options?.query?.trim();
