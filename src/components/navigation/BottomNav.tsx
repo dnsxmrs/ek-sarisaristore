@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ScanLine, PackageSearch, PlusCircle } from "lucide-react";
+import { ScanLine, PackageSearch, PlusCircle, NotebookPen } from "lucide-react";
 
 function BottomNavContent() {
   const pathname = usePathname();
@@ -11,10 +11,11 @@ function BottomNavContent() {
   const isLookup = pathname === "/";
   const isProducts = pathname === "/products" || (pathname.startsWith("/products/") && !pathname.includes("/new"));
   const isNew = pathname === "/products/new";
+  const isUtang = pathname === "/utang" || pathname.startsWith("/utang");
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 shadow-lg">
-      <div className="max-w-md mx-auto grid grid-cols-3 h-16">
+      <div className="max-w-md mx-auto grid grid-cols-4 h-16">
         <Link
           href="/"
           className={`flex flex-col items-center justify-center min-h-[44px] transition-colors ${
@@ -55,6 +56,20 @@ function BottomNavContent() {
             <PlusCircle className="w-5 h-5" />
           </div>
           <span className="text-[11px] mt-0.5 font-heading">Magdagdag</span>
+        </Link>
+
+        <Link
+          href="/utang"
+          className={`flex flex-col items-center justify-center min-h-[44px] transition-colors ${
+            isUtang
+              ? "text-teal-700 font-semibold"
+              : "text-slate-500 hover:text-slate-800 font-medium"
+          }`}
+        >
+          <div className={`p-1 rounded-full ${isUtang ? "bg-teal-50" : ""}`}>
+            <NotebookPen className="w-5 h-5" />
+          </div>
+          <span className="text-[11px] mt-0.5 font-heading">Utang</span>
         </Link>
       </div>
     </nav>
