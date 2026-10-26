@@ -16,6 +16,7 @@ interface SaleCameraScannerProps {
   onClose: () => void;
   onScan: (barcode: string) => void;
   lastScannedItem?: string | null;
+  containerIdPrefix?: string;
 }
 
 export function SaleCameraScanner({
@@ -23,6 +24,7 @@ export function SaleCameraScanner({
   onClose,
   onScan,
   lastScannedItem,
+  containerIdPrefix = "sale",
 }: SaleCameraScannerProps) {
   const [isStarting, setIsStarting] = useState(false);
   const [scannerError, setScannerError] = useState<string | null>(null);
@@ -97,6 +99,9 @@ export function SaleCameraScanner({
     scanCallbackRef.current = handleSuccessfulScan;
   }, [handleSuccessfulScan]);
 
+  const containerDivId = `${containerIdPrefix}-barcode-reader-container`;
+  const innerDivId = `${containerIdPrefix}-barcode-reader-inner`;
+
   // Native phone camera snap / file upload fallback
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,7 +114,7 @@ export function SaleCameraScanner({
       const { Html5Qrcode, Html5QrcodeSupportedFormats } = await import("html5-qrcode");
       const scanner =
         scannerInstanceRef.current ||
-        new Html5Qrcode("sale-barcode-reader-container", {
+        new Html5Qrcode(containerDivId, {
           formatsToSupport: [
             Html5QrcodeSupportedFormats.EAN_13,
             Html5QrcodeSupportedFormats.EAN_8,
@@ -146,7 +151,7 @@ export function SaleCameraScanner({
 
     let isMounted = true;
     const currentContainer = containerRef.current;
-    const scannerElementId = "sale-barcode-reader-inner";
+    const scannerElementId = innerDivId;
 
     async function initScanner() {
       if (scannerInstanceRef.current?.isScanning) return;
@@ -264,7 +269,7 @@ export function SaleCameraScanner({
         }
       }
     };
-  }, [isOpen, facingMode]);
+  }, [isOpen, facingMode, innerDivId]);
 
   if (!isOpen) return null;
 
@@ -309,7 +314,7 @@ export function SaleCameraScanner({
       {/* Camera Live Viewport */}
       <div className="relative w-full bg-black min-h-[180px] flex items-center justify-center overflow-hidden">
         <div
-          id="sale-barcode-reader-container"
+          id={containerDivId}
           ref={containerRef}
           className="w-full flex justify-center items-center overflow-hidden"
         />
@@ -346,7 +351,7 @@ export function SaleCameraScanner({
         capture="environment"
         onChange={handleFileUpload}
         className="hidden"
-        id="sale-native-camera-capture"
+        id={`${containerIdPrefix}-native-camera-capture`}
       />
 
       {/* Bottom Sub-bar */}

@@ -11,7 +11,7 @@ import {
   Camera,
 } from "lucide-react";
 import { formatPeso } from "@/lib/money";
-import { NewDebtModal } from "./NewDebtModal";
+import { NewDebtModal, type ProductCatalogItem } from "./NewDebtModal";
 import { PaymentModal } from "./PaymentModal";
 import { PhotoLightboxModal } from "./PhotoLightboxModal";
 
@@ -51,9 +51,13 @@ export interface CustomerLedgerData {
 
 interface CustomerLedgerViewProps {
   customer: CustomerLedgerData;
+  products?: ProductCatalogItem[];
 }
 
-export function CustomerLedgerView({ customer }: CustomerLedgerViewProps) {
+export function CustomerLedgerView({
+  customer,
+  products = [],
+}: CustomerLedgerViewProps) {
   const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
@@ -342,6 +346,7 @@ export function CustomerLedgerView({ customer }: CustomerLedgerViewProps) {
         isOpen={isDebtModalOpen}
         onClose={() => setIsDebtModalOpen(false)}
         customers={[{ id: customer.id, name: customer.name, nickname: customer.nickname }]}
+        products={products}
         preselectedCustomerId={customer.id}
       />
 

@@ -12,7 +12,7 @@ import {
   Phone,
 } from "lucide-react";
 import { formatPeso } from "@/lib/money";
-import { NewDebtModal } from "./NewDebtModal";
+import { NewDebtModal, type ProductCatalogItem } from "./NewDebtModal";
 import { NewCustomerModal } from "./NewCustomerModal";
 
 export interface CustomerSummaryItem {
@@ -35,11 +35,13 @@ interface UtangListViewProps {
     totalOutstanding: number;
     activeDebtorsCount: number;
   };
+  products?: ProductCatalogItem[];
 }
 
 export function UtangListView({
   initialCustomers,
   initialSummary,
+  products = [],
 }: UtangListViewProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterTab, setFilterTab] = useState<"withDebt" | "all">("withDebt");
@@ -256,6 +258,7 @@ export function UtangListView({
           name: c.name,
           nickname: c.nickname,
         }))}
+        products={products}
         onOpenNewCustomerModal={() => {
           setIsNewDebtOpen(false);
           setIsNewCustomerOpen(true);

@@ -1,10 +1,12 @@
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { connection } from "next/server";
 import type { Metadata } from "next";
 import { Header } from "@/components/navigation/Header";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { CustomerLedgerView } from "@/components/utang/CustomerLedgerView";
 import { getCustomerById } from "@/server/actions/utang";
+import { searchProducts } from "@/server/actions/products";
 
 interface CustomerLedgerPageProps {
   params: Promise<{ id: string }>;
@@ -28,14 +30,25 @@ export async function generateMetadata(
 }
 
 async function CustomerLedgerContent({ params }: CustomerLedgerPageProps) {
+  await connection();
   const { id } = await params;
-  const customer = await getCustomerById(id);
+  const [customer, productsRes] = await Promise.all([
+    getCustomerById(id),
+    searchProducts({ isActive: true, limit: 100 }),
+  ]);
 
   if (!customer) {
     notFound();
   }
 
-  return <CustomerLedgerView customer={customer} />;
+  const catalogProducts = (productsRes.products || []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    sellingPrice: p.sellingPrice,
+    barcode: p.barcode,
+  }));
+
+  return <CustomerLedgerView customer={customer} products={catalogProducts} />;
 }
 
 export default function CustomerLedgerPage(props: CustomerLedgerPageProps) {
