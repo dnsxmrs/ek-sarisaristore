@@ -224,46 +224,66 @@ export function NewSaleModal({
 
         {/* Scrollable Content Body */}
         <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
-          {/* Product Search & Tingi bar */}
-          <div className="space-y-1.5">
+          {/* Product Search & Tingi bar (with Floating overlay dropdown) */}
+          <div className="relative z-30">
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 placeholder="I-type ang pangalan o barcode..."
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
-                className="w-full pl-9 pr-20 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-600 focus:bg-white"
+                className="w-full pl-9 pr-24 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-600 focus:bg-white shadow-2xs"
               />
-              <button
-                type="button"
-                onClick={() => setIsAddingCustom(!isAddingCustom)}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 py-1 rounded-lg border border-teal-200/60 transition-colors"
-              >
-                + Tingi / Custom
-              </button>
+              <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                {productSearch && (
+                  <button
+                    type="button"
+                    onClick={() => setProductSearch("")}
+                    className="p-1 text-slate-400 hover:text-slate-700 rounded-md"
+                    title="Burahin ang search"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setIsAddingCustom(!isAddingCustom)}
+                  className="text-[10px] font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 py-1 rounded-lg border border-teal-200/60 transition-colors"
+                >
+                  + Tingi
+                </button>
+              </div>
             </div>
 
-            {/* Instant Search Results Dropdown */}
+            {/* Floating Search Results Dropdown (Does not push container) */}
             {searchResults.length > 0 && (
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-md overflow-hidden divide-y divide-slate-100 animate-fade-in">
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden divide-y divide-slate-100 z-50 animate-fade-in max-h-52 overflow-y-auto ring-1 ring-slate-950/5">
                 {searchResults.map((p) => (
                   <button
                     key={p.id}
                     type="button"
                     onClick={() => handleAddToCart(p)}
-                    className="w-full px-3 py-2 text-left hover:bg-teal-50/50 flex items-center justify-between text-xs transition-colors"
+                    className="w-full px-3.5 py-2.5 text-left hover:bg-teal-50/80 flex items-center justify-between text-xs transition-colors cursor-pointer group"
                   >
-                    <span className="font-medium text-slate-900 truncate">
-                      {p.name}
-                    </span>
-                    <span className="font-mono font-bold text-teal-800 shrink-0 ml-2">
+                    <div className="min-w-0 flex-1 pr-2">
+                      <span className="font-semibold text-slate-900 group-hover:text-teal-900 block truncate">
+                        {p.name}
+                      </span>
+                      {p.barcode && (
+                        <span className="font-mono text-[10px] text-slate-400 block truncate">
+                          {p.barcode}
+                        </span>
+                      )}
+                    </div>
+                    <span className="font-mono font-bold text-teal-800 shrink-0 bg-teal-50 px-2 py-0.5 rounded-lg border border-teal-100">
                       {formatPeso(p.sellingPrice)}
                     </span>
                   </button>
                 ))}
               </div>
             )}
+          </div>
 
             {/* Inline Custom Tingi Form */}
             {isAddingCustom && (
@@ -311,7 +331,6 @@ export function NewSaleModal({
                 </div>
               </div>
             )}
-          </div>
 
           {/* Cart Items List */}
           <div className="space-y-1.5">
