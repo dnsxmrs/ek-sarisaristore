@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
+import { useState, useTransition, useMemo, useCallback } from "react";
 import {
   X,
   Plus,
@@ -10,9 +10,13 @@ import {
   ShoppingCart,
   Check,
   AlertCircle,
+  ScanLine,
+  CheckCircle2,
 } from "lucide-react";
 import { formatPeso } from "@/lib/money";
 import { createSale } from "@/server/actions/sales";
+import { getProductByBarcode } from "@/server/actions/products";
+import { SaleCameraScanner } from "./SaleCameraScanner";
 
 export interface ProductCatalogItem {
   id: string;
@@ -47,6 +51,14 @@ export function NewSaleModal({
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "GCASH">("CASH");
   const [notes, setNotes] = useState("");
 
+  // Barcode Camera Scanner state
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [scannedFeedback, setScannedFeedback] = useState<string | null>(null);
+  const [scannerNotice, setScannerNotice] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
+
   // Custom / Tingi item state
   const [isAddingCustom, setIsAddingCustom] = useState(false);
   const [customName, setCustomName] = useState("");
@@ -80,10 +92,8 @@ export function NewSaleModal({
   const numericCash = parseFloat(cashReceived) || 0;
   const changeAmount = Math.max(0, numericCash - totalAmount);
 
-  if (!isOpen) return null;
-
   // Add product to cart
-  const handleAddToCart = (product: ProductCatalogItem) => {
+  const handleAddToCart = useCallback((product: ProductCatalogItem) => {
     setCart((prev) => {
       const existing = prev.find((item) => item.productId === product.id);
       if (existing) {
@@ -104,7 +114,65 @@ export function NewSaleModal({
       ];
     });
     setProductSearch("");
-  };
+  }, []);
+
+  // Handle barcode scanned from SaleCameraScanner
+  const handleBarcodeScanned = useCallback(
+    async (rawCode: string) => {
+      const code = rawCode.trim();
+      if (!code) return;
+
+      // 1. Check local catalog first (instant 0ms response)
+      const localMatch = products.find(
+        (p) => p.barcode && p.barcode.trim() === code
+      );
+
+      if (localMatch) {
+        handleAddToCart(localMatch);
+        setScannedFeedback(`${localMatch.name} (+1)`);
+        setScannerNotice({
+          message: `Naidagdag: ${localMatch.name} (${formatPeso(localMatch.sellingPrice)})`,
+          type: "success",
+        });
+        setTimeout(() => setScannerNotice(null), 3500);
+        return;
+      }
+
+      // 2. Fallback to server lookup if not in top catalog list
+      try {
+        const res = await getProductByBarcode(code);
+        if (res.success && res.product) {
+          const fetchedItem: ProductCatalogItem = {
+            id: res.product.id,
+            name: res.product.name,
+            sellingPrice: res.product.sellingPrice,
+            barcode: res.product.barcode,
+          };
+          handleAddToCart(fetchedItem);
+          setScannedFeedback(`${fetchedItem.name} (+1)`);
+          setScannerNotice({
+            message: `Naidagdag: ${fetchedItem.name} (${formatPeso(fetchedItem.sellingPrice)})`,
+            type: "success",
+          });
+          setTimeout(() => setScannerNotice(null), 3500);
+        } else {
+          setScannerNotice({
+            message: res.error || `Walang produktong may barcode: ${code}`,
+            type: "error",
+          });
+          setTimeout(() => setScannerNotice(null), 4000);
+        }
+      } catch (err) {
+        console.error("Barcode lookup error:", err);
+        setScannerNotice({
+          message: `Hindi mahanap ang produkto (${code})`,
+          type: "error",
+        });
+        setTimeout(() => setScannerNotice(null), 4000);
+      }
+    },
+    [products, handleAddToCart]
+  );
 
   // Add custom / tingi item
   const handleAddCustomItem = (e: React.FormEvent) => {
@@ -190,6 +258,8 @@ export function NewSaleModal({
     });
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in overflow-y-auto">
       <div className="relative w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 my-auto max-h-[92vh] flex flex-col">
@@ -224,6 +294,32 @@ export function NewSaleModal({
 
         {/* Scrollable Content Body */}
         <div className="flex-1 overflow-y-auto space-y-3.5 pr-1">
+          {/* Camera Scanner Viewport (Toggled on/off via the Scan button) */}
+          <SaleCameraScanner
+            isOpen={isCameraOpen}
+            onClose={() => setIsCameraOpen(false)}
+            onScan={handleBarcodeScanned}
+            lastScannedItem={scannedFeedback}
+          />
+
+          {/* Scanner Feedback Notification Toast */}
+          {scannerNotice && (
+            <div
+              className={`p-2.5 rounded-xl text-xs flex items-center gap-2 animate-fade-in ${
+                scannerNotice.type === "success"
+                  ? "bg-emerald-50 border border-emerald-200 text-emerald-800"
+                  : "bg-rose-50 border border-rose-200 text-rose-700"
+              }`}
+            >
+              {scannerNotice.type === "success" ? (
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+              ) : (
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+              )}
+              <span className="font-medium text-[11px] truncate">{scannerNotice.message}</span>
+            </div>
+          )}
+
           {/* Product Search & Tingi bar (with Floating overlay dropdown) */}
           <div className="relative z-30">
             <div className="relative">
@@ -233,7 +329,7 @@ export function NewSaleModal({
                 placeholder="I-type ang pangalan o barcode..."
                 value={productSearch}
                 onChange={(e) => setProductSearch(e.target.value)}
-                className="w-full pl-9 pr-24 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-600 focus:bg-white shadow-2xs"
+                className="w-full pl-9 pr-36 py-2 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-teal-600 focus:bg-white shadow-2xs"
               />
               <div className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
                 {productSearch && (
@@ -246,6 +342,19 @@ export function NewSaleModal({
                     <X className="w-3 h-3" />
                   </button>
                 )}
+                <button
+                  type="button"
+                  onClick={() => setIsCameraOpen((prev) => !prev)}
+                  className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors flex items-center gap-1 ${
+                    isCameraOpen
+                      ? "bg-teal-700 text-white border-teal-800 shadow-2xs"
+                      : "bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200 border-slate-200/80"
+                  }`}
+                  title="I-scan ang barcode gamit ang camera"
+                >
+                  <ScanLine className="w-3 h-3" />
+                  <span>{isCameraOpen ? "Isara" : "Scan"}</span>
+                </button>
                 <button
                   type="button"
                   onClick={() => setIsAddingCustom(!isAddingCustom)}
