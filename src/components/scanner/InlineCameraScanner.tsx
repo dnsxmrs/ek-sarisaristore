@@ -190,7 +190,7 @@ export function InlineCameraScanner({
         const targetDiv = document.createElement("div");
         targetDiv.id = scannerElementId;
         targetDiv.style.width = "100%";
-        targetDiv.style.minHeight = "220px";
+        targetDiv.style.position = "relative";
         currentContainer.appendChild(targetDiv);
       }
 
@@ -238,8 +238,15 @@ export function InlineCameraScanner({
           { facingMode: facingMode },
           {
             fps: 15,
-            qrbox: { width: 250, height: 160 },
-            aspectRatio: 1.25,
+            qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+              // Barcode viewfinder: wide centered horizontal box with comfortable surrounding visibility
+              const width = Math.min(Math.floor(viewfinderWidth * 0.78), 260);
+              const height = Math.min(Math.floor(viewfinderHeight * 0.45), 110);
+              return {
+                width: Math.max(width, 180),
+                height: Math.max(height, 80),
+              };
+            },
           },
           (decodedText) => {
             if (isMounted) {
@@ -370,7 +377,7 @@ export function InlineCameraScanner({
       </div>
 
       {/* Camera Screen Display Area */}
-      <div className="relative w-full bg-slate-950 min-h-[250px] sm:min-h-[280px] flex flex-col items-center justify-center overflow-hidden">
+      <div className="relative w-full bg-slate-950 h-[190px] sm:h-[210px] flex flex-col items-center justify-center overflow-hidden">
         {/* Background Grid Pattern */}
         <div
           className="absolute inset-0 opacity-10 pointer-events-none"
@@ -386,15 +393,18 @@ export function InlineCameraScanner({
         {/* CASE 1: CAMERA OFF DISPLAY */}
         {/* ======================================================== */}
         {!isCameraOn && (
-          <div className="relative z-10 w-full p-6 flex flex-col items-center justify-center text-center animate-fade-in">
-            <div className="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 shadow-inner flex items-center justify-center text-slate-400 mb-3.5 relative group">
-              <CameraOff className="w-8 h-8 text-slate-400 group-hover:scale-110 transition-transform" />
-              <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-slate-600 border-2 border-slate-950" />
+          <div className="relative z-10 w-full h-full flex flex-col items-center justify-center text-center p-4 animate-fade-in">
+            <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 shadow-inner flex items-center justify-center text-slate-400 mb-2 relative group">
+              <CameraOff className="w-6 h-6 text-slate-400 group-hover:scale-110 transition-transform" />
+              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-slate-600 border-2 border-slate-950" />
             </div>
 
-            <h3 className="font-heading font-bold text-base text-white mb-1">
+            <h3 className="font-heading font-bold text-sm text-white mb-0.5">
               Naka-off ang Camera
             </h3>
+            <p className="text-[11px] text-slate-400 max-w-xs">
+              I-on ang switch sa itaas upang simulan ang pag-scan ng barcode
+            </p>
           </div>
         )}
 

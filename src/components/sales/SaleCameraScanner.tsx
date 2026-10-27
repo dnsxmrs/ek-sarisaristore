@@ -164,7 +164,7 @@ export function SaleCameraScanner({
         const targetDiv = document.createElement("div");
         targetDiv.id = scannerElementId;
         targetDiv.style.width = "100%";
-        targetDiv.style.minHeight = "180px";
+        targetDiv.style.position = "relative";
         currentContainer.appendChild(targetDiv);
       }
 
@@ -210,8 +210,15 @@ export function SaleCameraScanner({
           { facingMode: facingMode },
           {
             fps: 15,
-            qrbox: { width: 220, height: 140 },
-            aspectRatio: 1.3,
+            qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+              // Barcode viewfinder: wide centered horizontal box with comfortable surrounding visibility
+              const width = Math.min(Math.floor(viewfinderWidth * 0.78), 260);
+              const height = Math.min(Math.floor(viewfinderHeight * 0.45), 110);
+              return {
+                width: Math.max(width, 180),
+                height: Math.max(height, 80),
+              };
+            },
           },
           (decodedText) => {
             if (isMounted) {
@@ -312,7 +319,7 @@ export function SaleCameraScanner({
       </div>
 
       {/* Camera Live Viewport */}
-      <div className="relative w-full bg-black min-h-[180px] flex items-center justify-center overflow-hidden">
+      <div className="relative w-full bg-slate-950 h-[190px] sm:h-[210px] flex items-center justify-center overflow-hidden">
         <div
           id={containerDivId}
           ref={containerRef}

@@ -141,7 +141,7 @@ export function BarcodeScannerModal({
         const targetDiv = document.createElement("div");
         targetDiv.id = scannerElementId;
         targetDiv.style.width = "100%";
-        targetDiv.style.minHeight = "240px";
+        targetDiv.style.position = "relative";
         currentContainer.appendChild(targetDiv);
       }
 
@@ -168,8 +168,14 @@ export function BarcodeScannerModal({
           { facingMode: "environment" },
           {
             fps: 15,
-            qrbox: { width: 260, height: 160 },
-            aspectRatio: 1.0,
+            qrbox: (viewfinderWidth: number, viewfinderHeight: number) => {
+              const width = Math.min(Math.floor(viewfinderWidth * 0.78), 260);
+              const height = Math.min(Math.floor(viewfinderHeight * 0.45), 110);
+              return {
+                width: Math.max(width, 180),
+                height: Math.max(height, 80),
+              };
+            },
           },
           (decodedText) => {
             if (isMounted) {
@@ -281,8 +287,8 @@ export function BarcodeScannerModal({
           {/* Live Scanner Container (if not blocked by HTTP insecure context) */}
           {!isHttpInsecure && (
             <div className="relative flex flex-col items-center">
-              <div className="relative w-full bg-slate-900 rounded-xl overflow-hidden min-h-55">
-                <div ref={containerRef} className="w-full h-full" />
+              <div className="relative w-full bg-slate-900 rounded-xl overflow-hidden h-[190px] sm:h-[210px] flex items-center justify-center">
+                <div ref={containerRef} className="w-full flex items-center justify-center overflow-hidden" />
                 {isStarting && (
                   <div className="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center gap-2 text-slate-300">
                     <RefreshCw className="w-7 h-7 animate-spin text-teal-400" />

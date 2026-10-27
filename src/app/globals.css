@@ -38,14 +38,19 @@ h1, h2, h3, h4, h5, h6 {
   animation: laser-sweep 2s ease-in-out infinite;
 }
 
-#inline-barcode-reader {
+#inline-barcode-reader,
+[id$="-barcode-reader-inner"],
+#isolated-barcode-reader {
   width: 100% !important;
-  border-radius: 1rem;
-  overflow: hidden;
+  border-radius: 0.75rem;
+  position: relative;
 }
 
-#inline-barcode-reader video {
+#inline-barcode-reader video,
+[id$="-barcode-reader-inner"] video,
+#isolated-barcode-reader video {
   width: 100% !important;
   height: auto !important;
   border-radius: 0.75rem;
+  display: block;
 }
