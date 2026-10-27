@@ -211,15 +211,27 @@ export async function createProduct(input: unknown): Promise<ActionResult<{ id: 
       }
     }
 
-    const created = await prisma.product.create({
-      data: {
-        name: data.name,
-        sellingPrice: new Prisma.Decimal(data.sellingPrice),
-        barcode: data.barcode,
-        categoryId: data.categoryId,
-        description: data.description,
-        isActive: data.isActive,
-      },
+    const created = await prisma.$transaction(async (tx) => {
+      const prod = await tx.product.create({
+        data: {
+          name: data.name,
+          sellingPrice: new Prisma.Decimal(data.sellingPrice),
+          barcode: data.barcode,
+          categoryId: data.categoryId,
+          description: data.description,
+          isActive: data.isActive,
+        },
+      });
+
+      await tx.productPriceHistory.create({
+        data: {
+          productId: prod.id,
+          price: new Prisma.Decimal(data.sellingPrice),
+          reason: "Paunang Presyo (Initial Price)",
+        },
+      });
+
+      return prod;
     });
 
     revalidatePath("/");
@@ -282,16 +294,46 @@ export async function updateProduct(
       }
     }
 
-    const updated = await prisma.product.update({
+    const currentProduct = await prisma.product.findUnique({
       where: { id },
-      data: {
-        name: data.name,
-        sellingPrice: new Prisma.Decimal(data.sellingPrice),
-        barcode: data.barcode,
-        categoryId: data.categoryId,
-        description: data.description,
-        isActive: data.isActive,
-      },
+      select: { id: true, sellingPrice: true, name: true },
+    });
+
+    if (!currentProduct) {
+      return {
+        success: false,
+        error: "Hindi nahanap ang produkto.",
+      };
+    }
+
+    const oldPrice = Number(currentProduct.sellingPrice);
+    const newPrice = Number(data.sellingPrice);
+    const priceChanged = oldPrice !== newPrice;
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const prod = await tx.product.update({
+        where: { id },
+        data: {
+          name: data.name,
+          sellingPrice: new Prisma.Decimal(data.sellingPrice),
+          barcode: data.barcode,
+          categoryId: data.categoryId,
+          description: data.description,
+          isActive: data.isActive,
+        },
+      });
+
+      if (priceChanged) {
+        await tx.productPriceHistory.create({
+          data: {
+            productId: id,
+            price: new Prisma.Decimal(data.sellingPrice),
+            reason: `Pagbago ng Presyo (Dati: ₱${oldPrice.toFixed(2)} → Ngayon: ₱${newPrice.toFixed(2)})`,
+          },
+        });
+      }
+
+      return prod;
     });
 
     revalidatePath("/");
@@ -309,6 +351,26 @@ export async function updateProduct(
       success: false,
       error: "Hindi na-update ang produkto. Pakisuri ang impormasyon at subukan muli.",
     };
+  }
+}
+
+/**
+ * Get price history records for a product.
+ */
+export async function getProductPriceHistory(productId: string) {
+  try {
+    const history = await prisma.productPriceHistory.findMany({
+      where: { productId },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+    return history.map((h) => ({
+      ...h,
+      price: Number(h.price),
+    }));
+  } catch (err) {
+    console.error("Error fetching price history:", err);
+    return [];
   }
 }
 
