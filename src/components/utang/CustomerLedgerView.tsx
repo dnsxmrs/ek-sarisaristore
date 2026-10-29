@@ -11,6 +11,7 @@ import {
   Camera,
 } from "lucide-react";
 import { formatPeso } from "@/lib/money";
+import { formatManilaRelative } from "@/lib/date";
 import { NewDebtModal, type ProductCatalogItem } from "./NewDebtModal";
 import { PaymentModal } from "./PaymentModal";
 import { PhotoLightboxModal } from "./PhotoLightboxModal";
@@ -88,98 +89,101 @@ export function CustomerLedgerView({
   ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
   return (
-    <div className="space-y-4 pb-20 animate-fade-in">
+    <div className="w-full max-w-md md:max-w-none mx-auto space-y-4 pb-24 md:pb-12 animate-fade-in">
       {/* ======================================================== */}
       {/* TOP BAR / BACK LINK */}
       {/* ======================================================== */}
       <div className="flex items-center justify-between">
         <Link
           href="/utang"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 transition-colors whitespace-nowrap shrink-0"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Bumalik sa Utang</span>
+          <ArrowLeft className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">Bumalik sa Utang</span>
         </Link>
       </div>
 
       {/* ======================================================== */}
       {/* CUSTOMER PROFILE & BALANCE CARD */}
       {/* ======================================================== */}
-      <div className="bg-slate-900 text-white rounded-3xl p-5 shadow-sm border border-slate-800">
-        <div className="flex items-start justify-between gap-3">
+      <div className="bg-slate-900 text-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-800">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="font-heading font-bold text-xl text-white">
-              {customer.name}
-            </h1>
-            {customer.nickname && (
-              <span className="text-xs text-teal-300 font-medium block">
-                &ldquo;{customer.nickname}&rdquo;
-              </span>
-            )}
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="font-heading font-bold text-xl sm:text-2xl text-white">
+                {customer.name}
+              </h1>
+              {customer.nickname && (
+                <span className="text-xs sm:text-sm text-teal-300 font-medium">
+                  &ldquo;{customer.nickname}&rdquo;
+                </span>
+              )}
+            </div>
 
             {/* Phone & Email contacts */}
-            <div className="flex items-center gap-3 mt-2 text-xs text-slate-300">
+            <div className="flex items-center gap-3 mt-2 text-xs text-slate-300 flex-wrap">
               {customer.phone && (
                 <a
                   href={`tel:${customer.phone}`}
-                  className="flex items-center gap-1 hover:text-teal-300 transition-colors"
+                  className="flex items-center gap-1 hover:text-teal-300 transition-colors whitespace-nowrap shrink-0"
                 >
-                  <Phone className="w-3.5 h-3.5 text-teal-400" />
-                  <span>{customer.phone}</span>
+                  <Phone className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <span className="whitespace-nowrap">{customer.phone}</span>
                 </a>
               )}
               {customer.email && (
                 <a
                   href={`mailto:${customer.email}`}
-                  className="flex items-center gap-1 hover:text-teal-300 transition-colors"
+                  className="flex items-center gap-1 hover:text-teal-300 transition-colors whitespace-nowrap shrink-0"
                 >
-                  <Mail className="w-3.5 h-3.5 text-teal-400" />
-                  <span>{customer.email}</span>
+                  <Mail className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <span className="whitespace-nowrap">{customer.email}</span>
                 </a>
               )}
             </div>
+
+            {customer.notes && (
+              <p className="mt-2.5 text-xs text-slate-400 italic bg-slate-950/50 p-2.5 rounded-xl border border-slate-800 max-w-xl">
+                {customer.notes}
+              </p>
+            )}
           </div>
 
-          {/* Current Balance */}
-          <div className="text-right shrink-0">
-            <span className="text-[11px] text-slate-400 block font-medium">
-              Natitirang Utang
-            </span>
-            <span
-              className={`text-2xl font-black font-mono tracking-tight block ${
-                customer.currentBalance > 0 ? "text-amber-400" : "text-emerald-400"
-              }`}
-            >
-              {formatPeso(customer.currentBalance)}
-            </span>
+          {/* Current Balance & Action Buttons on Desktop */}
+          <div className="flex flex-col md:items-end gap-3 shrink-0 pt-3 md:pt-0 border-t md:border-t-0 border-slate-800">
+            <div className="md:text-right">
+              <span className="text-[11px] text-slate-400 block font-medium whitespace-nowrap">
+                Natitirang Utang
+              </span>
+              <span
+                className={`text-2xl sm:text-3xl font-black font-mono tracking-tight block whitespace-nowrap ${
+                  customer.currentBalance > 0 ? "text-amber-400" : "text-emerald-400"
+                }`}
+              >
+                {formatPeso(customer.currentBalance)}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsDebtModalOpen(true)}
+                className="py-2.5 px-3.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <Plus className="w-4 h-4 font-bold shrink-0" />
+                <span className="whitespace-nowrap">Maglista ng Utang</span>
+              </button>
+              <button
+                type="button"
+                disabled={customer.currentBalance <= 0}
+                onClick={() => setIsPaymentModalOpen(true)}
+                className="py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer whitespace-nowrap shrink-0"
+              >
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <span className="whitespace-nowrap">Magtala ng Bayad</span>
+              </button>
+            </div>
           </div>
-        </div>
-
-        {customer.notes && (
-          <p className="mt-3 text-xs text-slate-400 italic bg-slate-950/50 p-2.5 rounded-xl border border-slate-800">
-            {customer.notes}
-          </p>
-        )}
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-2 mt-4 pt-3.5 border-t border-slate-800">
-          <button
-            type="button"
-            onClick={() => setIsDebtModalOpen(true)}
-            className="w-full py-2.5 px-3 rounded-2xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
-          >
-            <Plus className="w-4 h-4 font-bold" />
-            <span>Maglista ng Utang</span>
-          </button>
-          <button
-            type="button"
-            disabled={customer.currentBalance <= 0}
-            onClick={() => setIsPaymentModalOpen(true)}
-            className="w-full py-2.5 px-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm cursor-pointer"
-          >
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Magtala ng Bayad</span>
-          </button>
         </div>
       </div>
 
@@ -228,13 +232,7 @@ export function CustomerLedgerView({
                               : "Di pa bayad"}
                           </span>
                           <span className="text-[11px] text-slate-400">
-                            {new Date(debt.createdAt).toLocaleDateString("en-PH", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "numeric",
-                              minute: "numeric",
-                              hour12: true,
-                            })}
+                            {formatManilaRelative(debt.createdAt)}
                           </span>
                         </div>
 
@@ -310,13 +308,7 @@ export function CustomerLedgerView({
                             <span>Hulog / Bayad</span>
                           </span>
                           <span className="text-[11px] text-slate-500">
-                            {new Date(payment.createdAt).toLocaleDateString("en-PH", {
-                              month: "short",
-                              day: "numeric",
-                              hour: "numeric",
-                              minute: "numeric",
-                              hour12: true,
-                            })}
+                            {formatManilaRelative(payment.createdAt)}
                           </span>
                         </div>
                         {payment.notes && (

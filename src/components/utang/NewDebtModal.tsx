@@ -285,15 +285,15 @@ export function NewDebtModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in overflow-y-auto">
-      <div className="relative w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 my-auto max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-md md:max-w-2xl bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0 mb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-800">
-              <Receipt className="w-4 h-4 font-bold" />
+            <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-800 shrink-0">
+              <Receipt className="w-4 h-4 font-bold shrink-0" />
             </div>
             <div>
-              <h2 className="font-heading font-bold text-base text-slate-900 leading-tight">
+              <h2 className="font-heading font-bold text-base text-slate-900 leading-tight whitespace-nowrap">
                 Maglista ng Utang
               </h2>
               <span className="text-[11px] text-slate-500">
@@ -425,20 +425,20 @@ export function NewDebtModal({
                 <button
                   type="button"
                   onClick={() => setIsCameraOpen((prev) => !prev)}
-                  className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors flex items-center gap-1 ${
+                  className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors flex items-center gap-1 whitespace-nowrap shrink-0 ${
                     isCameraOpen
                       ? "bg-teal-700 text-white border-teal-800 shadow-2xs"
                       : "bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200 border-slate-200/80"
                   }`}
                   title="I-scan ang barcode gamit ang camera"
                 >
-                  <ScanLine className="w-3 h-3" />
-                  <span>{isCameraOpen ? "Isara" : "Scan"}</span>
+                  <ScanLine className="w-3 h-3 shrink-0" />
+                  <span className="whitespace-nowrap">{isCameraOpen ? "Isara" : "Scan"}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsAddingCustom(!isAddingCustom)}
-                  className="text-[10px] font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 py-1 rounded-lg border border-teal-200/60 transition-colors"
+                  className="text-[10px] font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 py-1 rounded-lg border border-teal-200/60 transition-colors whitespace-nowrap shrink-0"
                 >
                   + Tingi
                 </button>
@@ -600,11 +600,11 @@ export function NewDebtModal({
           {/* Picture of Items (Ebidensya) - in the LAST part of the form */}
           <div className="pt-1">
             <div className="flex items-center justify-between mb-1">
-              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-                <Camera className="w-3.5 h-3.5 text-teal-600" />
-                <span>Litrato ng mga Paninda (Ebidensya)</span>
+              <label className="text-xs font-semibold text-slate-700 flex items-center gap-1 whitespace-nowrap">
+                <Camera className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <span className="whitespace-nowrap">Litrato ng mga Paninda (Ebidensya)</span>
               </label>
-              <span className="text-[10px] text-slate-400">Opsyonal</span>
+              <span className="text-[10px] text-slate-400 whitespace-nowrap">Opsyonal</span>
             </div>
             <PhotoEvidenceCapture photoUrl={photoUrl} onChange={setPhotoUrl} />
           </div>
@@ -615,7 +615,7 @@ export function NewDebtModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-semibold text-xs hover:bg-slate-50 transition-colors"
+            className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 font-semibold text-xs hover:bg-slate-50 transition-colors whitespace-nowrap"
           >
             Kanselahin
           </button>
@@ -623,14 +623,14 @@ export function NewDebtModal({
             type="button"
             disabled={isPending || cart.length === 0}
             onClick={handleSubmit}
-            className="flex-1 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer"
+            className="flex-1 py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-xs shadow-sm flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer whitespace-nowrap"
           >
             {isPending ? (
-              <span>Sine-save...</span>
+              <span className="whitespace-nowrap">Sine-save...</span>
             ) : (
               <>
-                <Check className="w-3.5 h-3.5" />
-                <span>I-save ang Utang ({formatPeso(totalAmount)})</span>
+                <Check className="w-3.5 h-3.5 shrink-0" />
+                <span className="whitespace-nowrap">I-save ang Utang ({formatPeso(totalAmount)})</span>
               </>
             )}
           </button>

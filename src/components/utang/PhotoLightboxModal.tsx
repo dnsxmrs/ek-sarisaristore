@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { X, Calendar, User, FileText } from "lucide-react";
 import { formatPeso } from "@/lib/money";
+import { formatManilaDateTime } from "@/lib/date";
 
 interface PhotoLightboxModalProps {
   isOpen: boolean;
@@ -39,16 +40,7 @@ export function PhotoLightboxModal({
 
   if (!isOpen || !photoUrl) return null;
 
-  const formattedDate = date
-    ? new Date(date).toLocaleString("en-PH", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        hour12: true,
-      })
-    : null;
+  const formattedDate = date ? formatManilaDateTime(date) : null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-sm animate-fade-in">

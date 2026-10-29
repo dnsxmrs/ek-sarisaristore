@@ -62,14 +62,14 @@ export function NewCustomerModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-slate-950/70 backdrop-blur-xs animate-fade-in">
-      <div className="relative w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl border border-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in">
+      <div className="relative w-full max-w-sm md:max-w-md bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center text-teal-800">
-              <UserPlus className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center text-teal-800 shrink-0">
+              <UserPlus className="w-4 h-4 shrink-0" />
             </div>
-            <h2 className="font-heading font-bold text-base text-slate-900">
+            <h2 className="font-heading font-bold text-base text-slate-900 whitespace-nowrap">
               Bagong Suki
             </h2>
           </div>
@@ -180,8 +180,8 @@ export function NewCustomerModal({
                 <span>Sine-save...</span>
               ) : (
                 <>
-                  <Check className="w-3.5 h-3.5" />
-                  <span>I-save ang Suki</span>
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap">I-save ang Suki</span>
                 </>
               )}
             </button>

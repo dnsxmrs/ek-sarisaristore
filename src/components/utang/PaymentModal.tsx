@@ -68,17 +68,17 @@ export function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in">
-      <div className="relative w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl border border-slate-200">
+      <div className="relative w-full max-w-sm md:max-w-md bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-3.5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-800">
-              <CheckCircle2 className="w-4 h-4 font-bold" />
+            <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-800 shrink-0">
+              <CheckCircle2 className="w-4 h-4 font-bold shrink-0" />
             </div>
             <div>
-              <h2 className="font-heading font-bold text-base text-slate-900 leading-tight">
+              <h2 className="font-heading font-bold text-base text-slate-900 leading-tight whitespace-nowrap">
                 Magtala ng Bayad
               </h2>
-              <span className="text-[11px] text-slate-600 block">
+              <span className="text-[11px] text-slate-600 block whitespace-nowrap">
                 {customerName}
               </span>
             </div>
@@ -171,8 +171,8 @@ export function PaymentModal({
                 <span>Sine-save...</span>
               ) : (
                 <>
-                  <Check className="w-3.5 h-3.5" />
-                  <span>I-save ang Bayad</span>
+                  <Check className="w-3.5 h-3.5 shrink-0" />
+                  <span className="whitespace-nowrap">I-save ang Bayad</span>
                 </>
               )}
             </button>
