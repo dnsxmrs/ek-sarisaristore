@@ -158,7 +158,7 @@ export function ProductListView({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto pb-24">
+    <div className="w-full max-w-md md:max-w-none mx-auto pb-24 md:pb-12">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-16 left-4 right-4 z-40 max-w-md mx-auto bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center justify-between animate-fade-in">
@@ -170,12 +170,12 @@ export function ProductListView({
       )}
 
       {/* Top Header & Add Button */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-xl font-heading font-bold text-slate-900">
+          <h1 className="text-xl sm:text-2xl font-heading font-bold text-slate-900 tracking-tight">
             Tindahan (Catalog)
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
             {products.length < totalCount
               ? `Ipinapakita: ${products.length} sa ${totalCount} produkto`
               : `${totalCount} ${totalCount === 1 ? "produkto" : "mga produkto"}`}
@@ -183,84 +183,88 @@ export function ProductListView({
         </div>
         <Link
           href="/products/new"
-          className="bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center gap-1.5 min-h-[44px] shadow-sm transition-colors"
+          className="bg-teal-700 hover:bg-teal-800 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 min-h-[44px] shadow-sm transition-colors shrink-0 whitespace-nowrap"
         >
-          <Plus className="w-4 h-4 text-amber-300" />
-          <span>Magdagdag</span>
+          <Plus className="w-4 h-4 text-amber-300 shrink-0" />
+          <span className="whitespace-nowrap">Magdagdag ng Produkto</span>
         </Link>
       </div>
 
-      {/* Search Input */}
-      <div className="relative mb-3">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Maghanap sa pangalan o barcode..."
-          className="w-full bg-white border border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 min-h-[44px] shadow-sm"
-        />
-        {searchQuery && (
-          <button
-            onClick={() => onQueryChange("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 p-1"
-          >
-            ✕
-          </button>
-        )}
-      </div>
+      {/* Search Input & Controls Toolbar */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm mb-5 space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="relative flex-1">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => onQueryChange(e.target.value)}
+              placeholder="Maghanap sa pangalan o barcode..."
+              className="w-full bg-slate-50 border border-slate-300 rounded-xl pl-10 pr-9 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:bg-white min-h-[44px]"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => onQueryChange("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 p-1"
+              >
+                ✕
+              </button>
+            )}
+          </div>
 
-      {/* Category Pills Filter */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 mb-2 no-scrollbar">
-        <button
-          type="button"
-          onClick={() => onCategoryChange("ALL")}
-          className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[36px] ${
-            selectedCategory === "ALL"
-              ? "bg-teal-800 text-white font-semibold"
-              : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
-          }`}
-        >
-          Lahat
-        </button>
-        {categories.map((cat) => (
+          <div className="flex items-center justify-between sm:justify-end gap-3 text-xs text-slate-500 shrink-0 whitespace-nowrap">
+            <span className="whitespace-nowrap">Isama ang naka-deactivate</span>
+            <button
+              type="button"
+              onClick={onToggleShowInactive}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0 ${
+                showInactive ? "bg-teal-700" : "bg-slate-300"
+              }`}
+            >
+              <span
+                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+                  showInactive ? "translate-x-4" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Category Pills Filter */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pt-1 no-scrollbar">
           <button
-            key={cat.id}
             type="button"
-            onClick={() => onCategoryChange(cat.id)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[36px] ${
-              selectedCategory === cat.id
-                ? "bg-teal-800 text-white font-semibold"
-                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-100"
+            onClick={() => onCategoryChange("ALL")}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[36px] shrink-0 ${
+              selectedCategory === "ALL"
+                ? "bg-teal-800 text-white font-semibold shadow-xs"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
             }`}
           >
-            {cat.name}
+            Lahat
           </button>
-        ))}
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              type="button"
+              onClick={() => onCategoryChange(cat.id)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors min-h-[36px] shrink-0 ${
+                selectedCategory === cat.id
+                  ? "bg-teal-800 text-white font-semibold shadow-xs"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200"
+              }`}
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Include Inactive Switch */}
-      <div className="flex items-center justify-between mb-3 px-1 text-xs text-slate-500">
-        <span>Isama ang mga naka-deactivate</span>
-        <button
-          type="button"
-          onClick={onToggleShowInactive}
-          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${
-            showInactive ? "bg-teal-700" : "bg-slate-300"
-          }`}
-        >
-          <span
-            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
-              showInactive ? "translate-x-4" : "translate-x-1"
-            }`}
-          />
-        </button>
-      </div>
-
-      {/* Product List */}
-      <div className="space-y-2.5">
+      {/* Product List Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-3.5 lg:gap-4">
         {products.length === 0 && !isPending ? (
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center shadow-sm">
+          <div className="col-span-full bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 text-center shadow-sm">
             <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
               <Layers className="w-6 h-6" />
             </div>
@@ -274,79 +278,95 @@ export function ProductListView({
             </p>
             <Link
               href={searchQuery ? `/products/new?name=${encodeURIComponent(searchQuery)}` : "/products/new"}
-              className="inline-flex items-center gap-1.5 bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl min-h-[44px] transition-colors"
+              className="inline-flex items-center gap-1.5 bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl min-h-[44px] transition-colors whitespace-nowrap"
             >
-              <Plus className="w-4 h-4 text-amber-300" />
-              <span>Magrehistro ng Produkto</span>
+              <Plus className="w-4 h-4 text-amber-300 shrink-0" />
+              <span className="whitespace-nowrap">Magrehistro ng Produkto</span>
             </Link>
           </div>
         ) : (
           products.map((product) => (
             <div
               key={product.id}
-              className={`bg-white rounded-xl border p-3.5 transition-all shadow-sm flex flex-col justify-between ${
-                product.isActive ? "border-slate-200" : "border-slate-200 bg-slate-50/70 opacity-75"
+              className={`group bg-white rounded-xl border p-3.5 sm:p-4 transition-all duration-150 shadow-2xs hover:shadow-sm hover:border-teal-400/80 flex flex-col justify-between relative ${
+                product.isActive
+                  ? "border-slate-200/90"
+                  : "border-slate-200 bg-slate-50/70 opacity-80"
               }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    {product.category && (
-                      <span className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
-                        {product.category.name}
-                      </span>
-                    )}
-                    {!product.isActive && (
-                      <span className="text-[10px] font-semibold bg-red-100 text-red-700 px-2 py-0.5 rounded-md flex items-center gap-0.5">
-                        <AlertCircle className="w-3 h-3" /> Deactivated
-                      </span>
-                    )}
-                  </div>
-                  <h3 className="font-heading font-semibold text-sm text-slate-900 leading-snug line-clamp-2">
-                    {product.name}
-                  </h3>
-                  {product.barcode ? (
-                    <p className="text-[11px] font-mono text-slate-500 mt-1 flex items-center gap-1">
-                      <Barcode className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{product.barcode}</span>
-                    </p>
-                  ) : (
-                    <p className="text-[10px] text-slate-400 mt-1 italic">Walang barcode</p>
+              {/* Product Information */}
+              <div>
+                {/* Category & Status Bar */}
+                <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                  <span
+                    title={product.category?.name}
+                    className="text-[10px] font-medium bg-slate-100 text-slate-600 px-2 py-0.5 rounded truncate max-w-[140px]"
+                  >
+                    {product.category?.name || "Pangkalahatan"}
+                  </span>
+
+                  {!product.isActive && (
+                    <span className="text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200/80 px-1.5 py-0.5 rounded inline-flex items-center gap-1 whitespace-nowrap shrink-0">
+                      <AlertCircle className="w-2.5 h-2.5 shrink-0" />
+                      <span className="whitespace-nowrap">Deactivated</span>
+                    </span>
                   )}
                 </div>
 
-                {/* Price Display */}
-                <div className="text-right shrink-0">
-                  <div className="text-lg font-bold font-heading text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60 inline-block">
-                    {formatPeso(product.sellingPrice)}
-                  </div>
+                {/* Product Name: clamped to 2 lines with consistent compact min-height */}
+                <h3
+                  title={product.name}
+                  className="font-heading font-semibold text-slate-900 text-sm leading-snug line-clamp-2 min-h-[2.4rem] break-words"
+                >
+                  {product.name}
+                </h3>
+
+                {/* Barcode: grouped right below product name */}
+                <div className="mt-1 min-h-[18px] flex items-center">
+                  {product.barcode ? (
+                    <p className="text-[11px] font-mono text-slate-500 truncate flex items-center gap-1 max-w-full">
+                      <Barcode className="w-3 h-3 text-slate-400 shrink-0" />
+                      <span className="truncate whitespace-nowrap">{product.barcode}</span>
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-slate-400 italic whitespace-nowrap">
+                      Walang barcode
+                    </p>
+                  )}
                 </div>
               </div>
 
-              {/* Action Controls */}
-              <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-end gap-2">
-                <Link
-                  href={`/products/${product.id}/edit`}
-                  className="flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-lg min-h-[38px] transition-colors"
-                >
-                  <Edit2 className="w-3.5 h-3.5 text-slate-500" />
-                  <span>I-edit</span>
-                </Link>
+              {/* Bottom Footer: Price on Left, Compact Actions on Right */}
+              <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between gap-1.5">
+                {/* Price Display */}
+                <span className="text-base sm:text-lg font-bold font-heading text-amber-700 whitespace-nowrap shrink-0">
+                  {formatPeso(product.sellingPrice)}
+                </span>
 
-                <button
-                  type="button"
-                  onClick={() => handleToggleStatus(product.id, product.isActive, product.name)}
-                  disabled={isPending}
-                  className={`flex items-center gap-1 text-xs font-medium px-2.5 py-1.5 rounded-lg min-h-[38px] transition-colors ${
-                    product.isActive
-                      ? "text-red-700 hover:bg-red-50 hover:text-red-800"
-                      : "text-teal-700 hover:bg-teal-50 hover:text-teal-800 font-semibold"
-                  }`}
-                  title={product.isActive ? "I-deactivate" : "I-activate"}
-                >
-                  <Power className="w-3.5 h-3.5" />
-                  <span>{product.isActive ? "I-deactivate" : "I-activate"}</span>
-                </button>
+                {/* Action Controls */}
+                <div className="flex items-center gap-1 shrink-0">
+                  <Link
+                    href={`/products/${product.id}/edit`}
+                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-md transition-colors whitespace-nowrap shrink-0 border border-slate-200/70"
+                  >
+                    <Edit2 className="w-3 h-3 text-slate-500 shrink-0" />
+                    <span className="whitespace-nowrap">I-edit</span>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => handleToggleStatus(product.id, product.isActive, product.name)}
+                    disabled={isPending}
+                    className={`inline-flex items-center justify-center p-1 rounded-md transition-colors whitespace-nowrap shrink-0 border ${
+                      product.isActive
+                        ? "text-slate-400 hover:text-red-700 hover:bg-red-50 border-slate-200 hover:border-red-200"
+                        : "text-teal-700 bg-teal-50 hover:bg-teal-100 border-teal-200 font-semibold"
+                    }`}
+                    title={product.isActive ? "I-deactivate" : "I-activate"}
+                  >
+                    <Power className="w-3.5 h-3.5 shrink-0" />
+                  </button>
+                </div>
               </div>
             </div>
           ))
@@ -354,14 +374,14 @@ export function ProductListView({
 
         {/* Infinite Scroll Sentinel & Stream Loader (Facebook-style) */}
         {hasMore && (
-          <div ref={sentinelRef} className="py-4 flex flex-col items-center justify-center">
+          <div ref={sentinelRef} className="col-span-full py-6 flex flex-col items-center justify-center">
             {isLoadingMore ? (
               <div className="w-full flex flex-col items-center gap-2">
                 {/* Skeleton placeholders */}
                 <div className="w-full bg-slate-200/60 rounded-xl h-20 animate-pulse border border-slate-300/40" />
-                <div className="flex items-center gap-2 text-xs text-teal-800 font-medium py-1">
-                  <RefreshCw className="w-4 h-4 animate-spin text-teal-600" />
-                  <span>Kinakarga ang susunod na mga produkto...</span>
+                <div className="flex items-center gap-2 text-xs text-teal-800 font-medium py-1 whitespace-nowrap">
+                  <RefreshCw className="w-4 h-4 animate-spin text-teal-600 shrink-0" />
+                  <span className="whitespace-nowrap">Kinakarga ang susunod na mga produkto...</span>
                 </div>
               </div>
             ) : (
@@ -372,7 +392,7 @@ export function ProductListView({
 
         {/* End of Catalog Banner */}
         {!hasMore && products.length > 0 && (
-          <div className="text-center py-4 text-xs text-slate-400 border-t border-slate-200/80 mt-4">
+          <div className="col-span-full text-center py-6 text-xs text-slate-400 border-t border-slate-200/80 mt-4">
             <span className="inline-block bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-[11px] font-medium border border-slate-200">
               ✓ Nakarating ka na sa dulo ng katalogo ({products.length} produkto)
             </span>

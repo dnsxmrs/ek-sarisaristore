@@ -106,18 +106,18 @@ export function ProductForm({
   };
 
   return (
-    <div className="w-full max-w-md mx-auto pb-24">
+    <div className="w-full max-w-md md:max-w-2xl mx-auto pb-24 md:pb-12">
       {/* Top action header */}
       <div className="flex items-center justify-between mb-4 px-1">
         <button
           type="button"
           onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 min-h-[44px] min-w-[44px] -ml-2 px-2 rounded-lg"
+          className="flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 min-h-[44px] min-w-[44px] -ml-2 px-2 rounded-lg whitespace-nowrap shrink-0"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Bumalik</span>
+          <ArrowLeft className="w-4 h-4 shrink-0" />
+          <span className="whitespace-nowrap">Bumalik</span>
         </button>
-        <span className="text-xs font-semibold uppercase tracking-wider text-teal-800 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200">
+        <span className="text-xs font-semibold uppercase tracking-wider text-teal-800 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200 whitespace-nowrap shrink-0">
           {mode === "create" ? "Bagong Produkto" : "I-edit ang Produkto"}
         </span>
       </div>
@@ -159,18 +159,18 @@ export function ProductForm({
             <div className="flex items-center justify-between mb-1.5">
               <label
                 htmlFor="product-barcode"
-                className="text-xs font-semibold text-slate-700 flex items-center gap-1.5"
+                className="text-xs font-semibold text-slate-700 flex items-center gap-1.5 whitespace-nowrap"
               >
-                <Barcode className="w-4 h-4 text-slate-500" />
+                <Barcode className="w-4 h-4 text-slate-500 shrink-0" />
                 <span>Barcode (Opsyonal)</span>
               </label>
               <button
                 type="button"
                 onClick={() => setIsScannerOpen(true)}
-                className="text-xs font-semibold text-teal-700 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-lg border border-teal-200/80 flex items-center gap-1 transition-colors min-h-[32px]"
+                className="text-xs font-semibold text-teal-700 hover:text-teal-800 bg-teal-50 hover:bg-teal-100 px-2.5 py-1 rounded-lg border border-teal-200/80 flex items-center gap-1 transition-colors min-h-[32px] whitespace-nowrap shrink-0"
               >
-                <Camera className="w-3.5 h-3.5" />
-                <span>I-scan</span>
+                <Camera className="w-3.5 h-3.5 shrink-0" />
+                <span className="whitespace-nowrap">I-scan</span>
               </button>
             </div>
             <div className="relative">
@@ -349,10 +349,10 @@ export function ProductForm({
             <button
               type="submit"
               disabled={isPending}
-              className="w-full bg-teal-800 hover:bg-teal-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 min-h-[48px] transition-all"
+              className="w-full bg-teal-800 hover:bg-teal-900 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold py-3 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 min-h-[48px] transition-all whitespace-nowrap"
             >
-              <Save className="w-5 h-5 text-amber-300" />
-              <span>
+              <Save className="w-5 h-5 text-amber-300 shrink-0" />
+              <span className="whitespace-nowrap">
                 {isPending
                   ? "Sinisave..."
                   : mode === "create"
