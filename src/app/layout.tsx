@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -20,9 +20,34 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#134e4a",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export const metadata: Metadata = {
-  title: "Sari-Sari Store Management",
-  description: "Mobile-first sari-sari store product catalog and price lookup",
+  title: {
+    default: "Sari-Sari Store POS & Paninda",
+    template: "%s | Sari-Sari Store",
+  },
+  description:
+    "Mobile-first POS, barcode price scanner, at utang ledger para sa sari-sari store.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SariSari POS",
+  },
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    apple: "/ek-sss.jpg",
+  },
 };
 
 export default function RootLayout({
