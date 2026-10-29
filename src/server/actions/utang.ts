@@ -11,6 +11,7 @@ import {
   DebtPaymentInput,
 } from "@/lib/validation/utang";
 import { Prisma } from "@/generated/prisma/client";
+import { sanitizeError } from "@/lib/errors";
 
 export type ActionResult<T = unknown> =
   | { success: true; data: T; message?: string }
@@ -246,7 +247,7 @@ export async function createCustomer(rawData: CustomerInput): Promise<ActionResu
     console.error("Create customer error:", err);
     return {
       success: false,
-      error: "Hindi na-save ang suki. Pakisubukan muli.",
+      error: sanitizeError(err, "Hindi na-save ang suki. Pakisubukan muli."),
     };
   }
 }
@@ -306,7 +307,7 @@ export async function createDebtRecord(
     console.error("Create debt error:", err);
     return {
       success: false,
-      error: "Hindi na-save ang utang. Pakisubukan muli.",
+      error: sanitizeError(err, "Hindi na-save ang utang. Pakisubukan muli."),
     };
   }
 }
@@ -404,7 +405,7 @@ export async function recordPayment(
     console.error("Record payment error:", err);
     return {
       success: false,
-      error: "Hindi naitala ang bayad. Pakisubukan muli.",
+      error: sanitizeError(err, "Hindi naitala ang bayad. Pakisubukan muli."),
     };
   }
 }

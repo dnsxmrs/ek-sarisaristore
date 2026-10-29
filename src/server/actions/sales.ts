@@ -8,6 +8,8 @@ import {
   CreateSaleInput,
 } from "@/lib/validation/sales";
 import { Prisma } from "@/generated/prisma/client";
+import { getManilaDayBounds } from "@/lib/date";
+import { sanitizeError } from "@/lib/errors";
 
 export type ActionResult<T = unknown> =
   | { success: true; data: T; message?: string }
@@ -26,27 +28,13 @@ function generateReceiptNumber(): string {
 }
 
 /**
- * Get start and end of day in local time
- */
-function getDayBounds(daysAgo = 0) {
-  const start = new Date();
-  start.setDate(start.getDate() - daysAgo);
-  start.setHours(0, 0, 0, 0);
-
-  const end = new Date(start);
-  end.setHours(23, 59, 59, 999);
-
-  return { start, end };
-}
-
-/**
  * Get overall summary stats for Sales (Today's Total, Yesterday, Transaction Count)
  */
 export async function getSalesSummary() {
   await connection();
   try {
-    const { start: todayStart, end: todayEnd } = getDayBounds(0);
-    const { start: yestStart, end: yestEnd } = getDayBounds(1);
+    const { start: todayStart, end: todayEnd } = getManilaDayBounds(0);
+    const { start: yestStart, end: yestEnd } = getManilaDayBounds(-1);
 
     const [todaySales, yestSales, allSalesAggregate] = await Promise.all([
       prisma.saleTransaction.aggregate({
@@ -100,10 +88,10 @@ export async function getSales(options?: {
     const where: Prisma.SaleTransactionWhereInput = {};
 
     if (dateFilter === "today") {
-      const { start, end } = getDayBounds(0);
+      const { start, end } = getManilaDayBounds(0);
       where.createdAt = { gte: start, lte: end };
     } else if (dateFilter === "yesterday") {
-      const { start, end } = getDayBounds(1);
+      const { start, end } = getManilaDayBounds(-1);
       where.createdAt = { gte: start, lte: end };
     }
 
@@ -256,7 +244,7 @@ export async function createSale(
     console.error("Create sale error:", err);
     return {
       success: false,
-      error: "Hindi na-save ang benta. Pakisubukan muli.",
+      error: sanitizeError(err, "Hindi na-save ang benta. Pakisubukan muli."),
     };
   }
 }

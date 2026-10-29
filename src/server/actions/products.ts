@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { productSchema } from "@/lib/validation/product";
 import { Prisma } from "@/generated/prisma/client";
+import { sanitizeError } from "@/lib/errors";
 
 export type ActionResult<T = unknown> =
   | { success: true; data: T; message?: string }
@@ -246,7 +247,10 @@ export async function createProduct(input: unknown): Promise<ActionResult<{ id: 
     console.error("Error creating product:", err);
     return {
       success: false,
-      error: "Hindi naisave ang produkto. Pakisuri ang impormasyon at subukan muli.",
+      error: sanitizeError(
+        err,
+        "Hindi naisave ang produkto. Pakisuri ang impormasyon at subukan muli."
+      ),
     };
   }
 }
@@ -349,7 +353,10 @@ export async function updateProduct(
     console.error("Error updating product:", err);
     return {
       success: false,
-      error: "Hindi na-update ang produkto. Pakisuri ang impormasyon at subukan muli.",
+      error: sanitizeError(
+        err,
+        "Hindi na-update ang produkto. Pakisuri ang impormasyon at subukan muli."
+      ),
     };
   }
 }
@@ -398,7 +405,7 @@ export async function toggleProductStatus(id: string, isActive: boolean): Promis
     console.error("Error toggling product status:", err);
     return {
       success: false,
-      error: "Hindi nagbago ang status ng produkto.",
+      error: sanitizeError(err, "Hindi nagbago ang status ng produkto."),
     };
   }
 }

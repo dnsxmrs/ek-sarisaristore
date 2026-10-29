@@ -3,6 +3,8 @@
 import { connection } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
+import { getManilaDayBounds, formatManilaDate, MANILA_TIMEZONE } from "@/lib/date";
+import { sanitizeError } from "@/lib/errors";
 
 export type AnalyticsTimeRange = "today" | "7days" | "30days" | "all";
 
@@ -45,31 +47,24 @@ export interface StoreAnalyticsData {
 }
 
 /**
- * Returns date boundary range for a given filter.
+ * Returns date boundary range for a given filter in Manila timezone (UTC+8).
  */
 function getDateRange(range: AnalyticsTimeRange): { gte?: Date; lte?: Date } | undefined {
-  const now = new Date();
-
   if (range === "today") {
-    const start = new Date(now);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(now);
-    end.setHours(23, 59, 59, 999);
+    const { start, end } = getManilaDayBounds(0);
     return { gte: start, lte: end };
   }
 
   if (range === "7days") {
-    const start = new Date(now);
-    start.setDate(start.getDate() - 6);
-    start.setHours(0, 0, 0, 0);
-    return { gte: start, lte: now };
+    const { start } = getManilaDayBounds(-6);
+    const { end } = getManilaDayBounds(0);
+    return { gte: start, lte: end };
   }
 
   if (range === "30days") {
-    const start = new Date(now);
-    start.setDate(start.getDate() - 29);
-    start.setHours(0, 0, 0, 0);
-    return { gte: start, lte: now };
+    const { start } = getManilaDayBounds(-29);
+    const { end } = getManilaDayBounds(0);
+    return { gte: start, lte: end };
   }
 
   return undefined;
@@ -98,10 +93,8 @@ export async function getStoreAnalytics(
       ? { createdAt: { gte: dateRange.gte, lte: dateRange.lte } }
       : {};
 
-    // 7-day trend start date
-    const trendStart = new Date();
-    trendStart.setDate(trendStart.getDate() - 6);
-    trendStart.setHours(0, 0, 0, 0);
+    // 7-day trend start date in Manila timezone
+    const { start: trendStart } = getManilaDayBounds(-6);
 
     // Parallel aggregate queries directly on PostgreSQL
     const [
@@ -227,26 +220,29 @@ export async function getStoreAnalytics(
     const dailyTrend: DailyTrendPoint[] = [];
 
     for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const year = d.getFullYear();
-      const month = d.getMonth();
-      const date = d.getDate();
+      const { start: dayStart, end: dayEnd } = getManilaDayBounds(-i);
 
-      const dayLabel = i === 0 ? "Ngayon" : dayNames[d.getDay()];
-      const dateStr = `${monthNames[month]} ${date}`;
+      const dayLabel =
+        i === 0
+          ? "Ngayon"
+          : new Intl.DateTimeFormat("tl-PH", {
+              timeZone: MANILA_TIMEZONE,
+              weekday: "short",
+            }).format(dayStart);
 
-      // Filter matches from the lightweight in-memory array
+      const dateStr = new Intl.DateTimeFormat("en-PH", {
+        timeZone: MANILA_TIMEZONE,
+        month: "short",
+        day: "numeric",
+      }).format(dayStart);
+
+      // Filter matches using exact timestamp boundaries
       let dayTotal = 0;
       let dayTxCount = 0;
 
       for (const tx of recentTrendTransactions) {
-        const txDate = new Date(tx.createdAt);
-        if (
-          txDate.getFullYear() === year &&
-          txDate.getMonth() === month &&
-          txDate.getDate() === date
-        ) {
+        const txTime = new Date(tx.createdAt).getTime();
+        if (txTime >= dayStart.getTime() && txTime <= dayEnd.getTime()) {
           dayTotal += Number(tx.totalAmount);
           dayTxCount += 1;
         }
