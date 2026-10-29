@@ -436,11 +436,11 @@ export function InlineCameraScanner({
                   <button
                     type="button"
                     onClick={handleToggleFacingMode}
-                    className="bg-slate-900/80 hover:bg-slate-800 text-white text-xs p-2 rounded-xl backdrop-blur-sm border border-slate-700/60 shadow flex items-center gap-1.5 transition-colors"
+                    className="bg-slate-900/80 hover:bg-slate-800 text-white text-xs p-2 rounded-xl backdrop-blur-sm border border-slate-700/60 shadow flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0"
                     title="Palitan ang Camera"
                   >
-                    <SwitchCamera className="w-3.5 h-3.5 text-amber-300" />
-                    <span className="text-[11px]">
+                    <SwitchCamera className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                    <span className="text-[11px] whitespace-nowrap">
                       {facingMode === "environment" ? "Likod" : "Harap"}
                     </span>
                   </button>
@@ -452,9 +452,9 @@ export function InlineCameraScanner({
             {scannerError && (
               <div className="absolute inset-0 bg-slate-950/95 p-5 flex flex-col items-center justify-center text-center z-20 animate-fade-in">
                 {isHttpInsecure ? (
-                  <ShieldAlert className="w-10 h-10 text-amber-400 mb-2" />
+                  <ShieldAlert className="w-10 h-10 text-amber-400 mb-2 shrink-0" />
                 ) : (
-                  <AlertCircle className="w-10 h-10 text-rose-400 mb-2" />
+                  <AlertCircle className="w-10 h-10 text-rose-400 mb-2 shrink-0" />
                 )}
                 <h4 className="font-heading font-bold text-sm text-white mb-1">
                   {isHttpInsecure ? "Browser HTTP Restriction" : "Hindi Mabuksan ang Camera"}
@@ -472,7 +472,7 @@ export function InlineCameraScanner({
                       onToggleCamera(false);
                       setTimeout(() => onToggleCamera(true), 100);
                     }}
-                    className="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-slate-600 transition-colors"
+                    className="bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold px-3 py-2 rounded-xl border border-slate-600 transition-colors whitespace-nowrap shrink-0"
                   >
                     Subukan Muli
                   </button>
@@ -480,10 +480,10 @@ export function InlineCameraScanner({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-colors"
+                    className="bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition-colors whitespace-nowrap shrink-0"
                   >
-                    <ImageIcon className="w-3.5 h-3.5 text-amber-300" />
-                    <span>Kumuha ng Litrato</span>
+                    <ImageIcon className="w-3.5 h-3.5 text-amber-300 shrink-0" />
+                    <span className="whitespace-nowrap">Kumuha ng Litrato</span>
                   </button>
                 </div>
               </div>
@@ -504,10 +504,10 @@ export function InlineCameraScanner({
       />
 
       {/* Bottom Auxiliary Bar: Snap Photo / Last scanned reference */}
-      <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs">
-        <div className="flex items-center gap-1.5 text-slate-600">
-          <Scan className="w-3.5 h-3.5 text-teal-700" />
-          <span className="text-[11px]">
+      <div className="px-4 py-2.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs gap-2">
+        <div className="flex items-center gap-1.5 text-slate-600 min-w-0">
+          <Scan className="w-3.5 h-3.5 text-teal-700 shrink-0" />
+          <span className="text-[11px] truncate">
             {lastScannedCode ? (
               <>Huling scan: <strong className="font-mono text-slate-900">{lastScannedCode}</strong></>
             ) : (
@@ -521,17 +521,17 @@ export function InlineCameraScanner({
           type="button"
           disabled={isProcessingFile}
           onClick={() => fileInputRef.current?.click()}
-          className="text-teal-800 hover:text-teal-950 font-semibold text-[11px] flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-teal-100/60 transition-colors"
+          className="text-teal-800 hover:text-teal-950 font-semibold text-[11px] flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-teal-100/60 transition-colors whitespace-nowrap shrink-0"
         >
           {isProcessingFile ? (
             <>
-              <RefreshCw className="w-3 h-3 animate-spin text-teal-700" />
-              <span>Binabasa...</span>
+              <RefreshCw className="w-3 h-3 animate-spin text-teal-700 shrink-0" />
+              <span className="whitespace-nowrap">Binabasa...</span>
             </>
           ) : (
             <>
-              <ImageIcon className="w-3 h-3 text-teal-700" />
-              <span>Kumuha ng Litrato</span>
+              <ImageIcon className="w-3 h-3 text-teal-700 shrink-0" />
+              <span className="whitespace-nowrap">Kumuha ng Litrato</span>
             </>
           )}
         </button>
