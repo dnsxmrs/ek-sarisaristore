@@ -262,15 +262,15 @@ export function NewSaleModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-xs animate-fade-in overflow-y-auto">
-      <div className="relative w-full max-w-md bg-white rounded-3xl p-5 shadow-2xl border border-slate-200 my-auto max-h-[92vh] flex flex-col">
+      <div className="relative w-full max-w-md md:max-w-2xl bg-white rounded-3xl p-5 sm:p-6 shadow-2xl border border-slate-200 my-auto max-h-[92vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0 mb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center text-teal-800">
-              <ShoppingCart className="w-4 h-4 font-bold" />
+            <div className="w-8 h-8 rounded-xl bg-teal-100 flex items-center justify-center text-teal-800 shrink-0">
+              <ShoppingCart className="w-4 h-4 font-bold shrink-0" />
             </div>
             <div>
-              <h2 className="font-heading font-bold text-base text-slate-900 leading-tight">
+              <h2 className="font-heading font-bold text-base text-slate-900 leading-tight whitespace-nowrap">
                 Magtala ng Benta
               </h2>
               <span className="text-[11px] text-slate-500">Mabilisang POS Checkout</span>
@@ -345,20 +345,20 @@ export function NewSaleModal({
                 <button
                   type="button"
                   onClick={() => setIsCameraOpen((prev) => !prev)}
-                  className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors flex items-center gap-1 ${
+                  className={`text-[10px] font-semibold px-2 py-1 rounded-lg border transition-colors flex items-center gap-1 whitespace-nowrap shrink-0 ${
                     isCameraOpen
                       ? "bg-teal-700 text-white border-teal-800 shadow-2xs"
                       : "bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200 border-slate-200/80"
                   }`}
                   title="I-scan ang barcode gamit ang camera"
                 >
-                  <ScanLine className="w-3 h-3" />
-                  <span>{isCameraOpen ? "Isara" : "Scan"}</span>
+                  <ScanLine className="w-3 h-3 shrink-0" />
+                  <span className="whitespace-nowrap">{isCameraOpen ? "Isara" : "Scan"}</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsAddingCustom(!isAddingCustom)}
-                  className="text-[10px] font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 py-1 rounded-lg border border-teal-200/60 transition-colors"
+                  className="text-[10px] font-semibold text-teal-700 hover:text-teal-900 bg-teal-50 px-2 py-1 rounded-lg border border-teal-200/60 transition-colors whitespace-nowrap shrink-0"
                 >
                   + Tingi
                 </button>
