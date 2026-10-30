@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { connection } from "next/server";
 import { getCategories } from "@/server/actions/products";
 import { ProductForm } from "@/components/products/ProductForm";
 import { Header } from "@/components/navigation/Header";
@@ -9,6 +10,7 @@ interface NewProductPageProps {
 }
 
 async function NewProductContent({ searchParams }: NewProductPageProps) {
+  await connection();
   const params = await searchParams;
   const categories = await getCategories();
 

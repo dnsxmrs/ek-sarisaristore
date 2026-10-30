@@ -1,10 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Store, ScanLine, PackageSearch, Receipt, NotebookPen, TrendingUp } from "lucide-react";
 
-export function Header() {
+function HeaderContent() {
   const pathname = usePathname();
 
   const navItems = [
@@ -86,6 +87,29 @@ export function Header() {
         </div>
       </div>
     </header>
+  );
+}
+
+export function Header() {
+  return (
+    <Suspense
+      fallback={
+        <header className="sticky top-0 z-30 bg-teal-900 text-white shadow-md">
+          <div className="max-w-md md:max-w-7xl mx-auto px-4 md:px-6 h-14 md:h-16 flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5 font-heading font-semibold text-lg tracking-tight shrink-0">
+              <div className="w-8 h-8 md:w-9 md:h-9 rounded-lg bg-amber-500 flex items-center justify-center text-slate-950 font-bold shadow-sm">
+                <Store className="w-5 h-5 text-teal-950" />
+              </div>
+              <div className="flex flex-col">
+                <span className="leading-tight text-white font-bold md:text-lg">Sari-Sari Store</span>
+              </div>
+            </div>
+          </div>
+        </header>
+      }
+    >
+      <HeaderContent />
+    </Suspense>
   );
 }
 

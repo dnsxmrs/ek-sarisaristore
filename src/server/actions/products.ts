@@ -26,6 +26,35 @@ export async function getCategories() {
 }
 
 /**
+ * Fetch all active products for sales and utang catalog selection.
+ * Lean query selecting only fields needed for dropdowns and fast in-memory search.
+ */
+export async function getActiveCatalogProducts() {
+  try {
+    const products = await prisma.product.findMany({
+      where: { isActive: true },
+      select: {
+        id: true,
+        name: true,
+        sellingPrice: true,
+        barcode: true,
+      },
+      orderBy: { name: "asc" },
+    });
+
+    return products.map((p) => ({
+      id: p.id,
+      name: p.name,
+      sellingPrice: Number(p.sellingPrice),
+      barcode: p.barcode,
+    }));
+  } catch (err) {
+    console.error("Error fetching catalog products:", err);
+    return [];
+  }
+}
+
+/**
  * Exact barcode lookup (Primary search mechanism for Price Lookup).
  */
 export async function getProductByBarcode(rawBarcode: string) {
@@ -237,6 +266,8 @@ export async function createProduct(input: unknown): Promise<ActionResult<{ id: 
 
     revalidatePath("/");
     revalidatePath("/products");
+    revalidatePath("/sales");
+    revalidatePath("/utang");
 
     return {
       success: true,
@@ -342,6 +373,8 @@ export async function updateProduct(
 
     revalidatePath("/");
     revalidatePath("/products");
+    revalidatePath("/sales");
+    revalidatePath("/utang");
     revalidatePath(`/products/${id}/edit`);
 
     return {
@@ -393,6 +426,8 @@ export async function toggleProductStatus(id: string, isActive: boolean): Promis
 
     revalidatePath("/");
     revalidatePath("/products");
+    revalidatePath("/sales");
+    revalidatePath("/utang");
 
     return {
       success: true,

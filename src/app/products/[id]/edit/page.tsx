@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import { connection } from "next/server";
 import { getCategories, getProductById } from "@/server/actions/products";
 import { ProductForm } from "@/components/products/ProductForm";
 import { Header } from "@/components/navigation/Header";
@@ -10,6 +11,7 @@ interface EditProductPageProps {
 }
 
 async function EditProductContent({ params }: EditProductPageProps) {
+  await connection();
   const { id } = await params;
   const [product, categories] = await Promise.all([
     getProductById(id),

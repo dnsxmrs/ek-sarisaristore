@@ -5,7 +5,7 @@ import { Header } from "@/components/navigation/Header";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { UtangListView } from "@/components/utang/UtangListView";
 import { getCustomers, getUtangSummaryStats } from "@/server/actions/utang";
-import { searchProducts } from "@/server/actions/products";
+import { getActiveCatalogProducts } from "@/server/actions/products";
 
 export const metadata: Metadata = {
   title: "Utang Ledger | Sari-Sari Store",
@@ -14,18 +14,11 @@ export const metadata: Metadata = {
 
 async function UtangPageContent() {
   await connection();
-  const [customers, summary, productsRes] = await Promise.all([
+  const [customers, summary, catalogProducts] = await Promise.all([
     getCustomers(),
     getUtangSummaryStats(),
-    searchProducts({ isActive: true, limit: 100 }),
+    getActiveCatalogProducts(),
   ]);
-
-  const catalogProducts = (productsRes.products || []).map((p) => ({
-    id: p.id,
-    name: p.name,
-    sellingPrice: p.sellingPrice,
-    barcode: p.barcode,
-  }));
 
   return (
     <UtangListView

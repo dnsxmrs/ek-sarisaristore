@@ -5,7 +5,7 @@ import { Header } from "@/components/navigation/Header";
 import { BottomNav } from "@/components/navigation/BottomNav";
 import { SalesListView } from "@/components/sales/SalesListView";
 import { getSales, getSalesSummary } from "@/server/actions/sales";
-import { searchProducts } from "@/server/actions/products";
+import { getActiveCatalogProducts } from "@/server/actions/products";
 
 export const metadata: Metadata = {
   title: "Mga Benta | Sari-Sari Store",
@@ -14,18 +14,11 @@ export const metadata: Metadata = {
 
 async function SalesPageContent() {
   await connection();
-  const [sales, summary, productsRes] = await Promise.all([
+  const [sales, summary, catalogProducts] = await Promise.all([
     getSales({ dateFilter: "today", limit: 50 }),
     getSalesSummary(),
-    searchProducts({ isActive: true, limit: 100 }),
+    getActiveCatalogProducts(),
   ]);
-
-  const catalogProducts = (productsRes.products || []).map((p) => ({
-    id: p.id,
-    name: p.name,
-    sellingPrice: p.sellingPrice,
-    barcode: p.barcode,
-  }));
 
   return (
     <SalesListView

@@ -77,7 +77,7 @@ export function NewSaleModal({
           p.name.toLowerCase().includes(q) ||
           (p.barcode && p.barcode.toLowerCase().includes(q))
       )
-      .slice(0, 5);
+      .slice(0, 8);
   }, [products, productSearch]);
 
   // Total amount calculation
