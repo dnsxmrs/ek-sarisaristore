@@ -135,12 +135,12 @@ export function SalesListView({
               {formatPeso(initialSummary.todayTotal)}
             </div>
           </div>
-          <div className="text-right shrink-0">
+          {/* <div className="text-right shrink-0">
             <span className="text-[11px] text-slate-400 block whitespace-nowrap">Transaksyon</span>
             <span className="text-sm font-bold text-amber-300 bg-amber-400/10 px-2.5 py-1 rounded-full border border-amber-400/20 inline-block mt-0.5 whitespace-nowrap">
               {initialSummary.todayCount} benta
             </span>
-          </div>
+          </div> */}
         </div>
 
         {/* Secondary metric: Kahapon */}
@@ -177,9 +177,9 @@ export function SalesListView({
             <span className="text-[11px] font-semibold tracking-wide uppercase text-teal-300 whitespace-nowrap shrink-0">
               Benta Ngayong Araw
             </span>
-            <span className="text-xs font-bold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20 whitespace-nowrap shrink-0">
+            {/* <span className="text-xs font-bold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20 whitespace-nowrap shrink-0">
               {initialSummary.todayCount} benta
-            </span>
+            </span> */}
           </div>
           <div className="text-2xl lg:text-3xl font-extrabold font-mono tracking-tight text-white my-2.5 whitespace-nowrap">
             {formatPeso(initialSummary.todayTotal)}

@@ -108,7 +108,7 @@ export function formatManilaRelative(input: DateInput): string {
   const timeStr = formatManilaTime(date);
 
   if (targetDateStr === todayStr) {
-    return `Ngayon, ${timeStr}`;
+    return `${timeStr}`;
   }
 
   if (targetDateStr === yesterdayStr) {
